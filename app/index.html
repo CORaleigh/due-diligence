@@ -6,7 +6,7 @@
   <meta name="description" content="">
   <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
 
-  <title>PRCR Experience - Pricing Form</title>
+  <title>Due Diligence Session Application</title>
   <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Roboto:400,700'>
   <link rel="stylesheet" href="./jspm_packages/github/angular/bower-material@master/angular-material.css"/>
   <link rel="stylesheet" href="./assets/app.css"/>
@@ -16,38 +16,7 @@
   <!-- Container #1 (see wireframe) -->
   <md-toolbar layout="row" class="md-toolbar-tools">
     <div class="md-toolbar-tools">
-      <md-button ng-if="'form' | includedByState" class="menu md-icon-button" hide-gt-sm ng-click="app.toggleList()"
-      aria-label="Show User List">
-      <md-icon md-svg-icon="menu"></md-icon>
-    </md-button>
-    <h1>PRCR Experience - Pricing Form</h1>
-    <span flex></span>
-    <div ng-if="app.$state.current.name.indexOf('admin') > - 1 || app.$state.current.name.indexOf('form') > - 1">
-      <md-button ng-show="$mdMedia('gt-sm')" ng-if="app.params.user.admin" 
-      aria-label="Change Mode" ng-click="app.adminClicked()">
-      {{app.admin ? 'form' : 'admin'}}
-    </md-button>
-    <md-button ng-show="$mdMedia('gt-sm')" ng-if="app.params"
-    aria-label="Logout" ng-click="app.logout()">
-    Logout
-  </md-button>  
-  <md-menu ng-hide="$mdMedia('gt-sm')" ng-if="app.params">
-    <md-button aria-label="Open Menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
-      <md-icon md-menu-origin md-svg-icon="more"></md-icon>
-    </md-button>
-    <md-menu-content>
-      <md-menu-item ng-if="app.params.user.admin">
-        <md-button ng-click="app.adminClicked()">
-          {{app.admin ? 'Form' : 'Admin'}}
-        </md-button>
-      </md-menu-item>
-      <md-menu-item>
-        <md-button ng-click="app.logout()">
-          Logout                              
-        </md-button>
-      </md-menu-item>
-    </md-menu-content>
-  </md-menu> 
+    <h1>Due Diligence Session Application</h1>
 </div>         
 </div>
 </md-toolbar>

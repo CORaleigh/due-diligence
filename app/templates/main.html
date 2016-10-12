@@ -1,410 +1,101 @@
-  <div flex layout="row" ng-controller="MainController as app">
-    <!-- Container #3 -->
-    <md-sidenav class="md-whiteframe-4dp" md-is-locked-open="$mdMedia('gt-sm')"
-    md-component-id="left" ng-click="app.toggleList()">
-    <md-list>
-      <md-list-item>
-        <span>Revenue Estimate</span>
-        <span class="md-secondary">{{app.calcRevenue() | currency:"$"}}</span>
-      </md-list-item>
-      <md-list-item>
-        <span>Cost Estimate</span>
-        <span class="md-secondary">{{app.calcCost() | currency:"$"}}</span>
-      </md-list-item>    
-      <md-list-item>
-        <span>Cost Recovery (target)</span>
-        <span ng-hide="app.checkNaN(app.data.service.value)" class="md-secondary">{{(app.data.service.value * 100).toFixed(0)}}%</span>
-        <span ng-show="app.checkNaN(app.data.service.value)" class="md-secondary">--</span>            
-      </md-list-item> 
-      <md-list-item>
-        <span>Cost Recovery (projected)</span>
-        <span ng-hide="app.checkNaN(app.revenueEstimate / app.costEstimate)" class="md-secondary">{{((app.revenueEstimate / app.costEstimate) * 100).toFixed(0)}}%</span>
-        <span ng-show="app.checkNaN(app.revenueEstimate / app.costEstimate)" class="md-secondary">--</span>          
-      </md-list-item>                   
-    </md-list>
-    <md-toolbar ng-hide="parkForm.$invalid" layout="row" ng-class="{'md-warn': (app.revenueEstimate / app.costEstimate) < app.data.service.value || app.checkNaN(app.revenueEstimate / app.costEstimate) || app.checkNaN(app.data.service.value), 'md-primary': (app.revenueEstimate / app.costEstimate) >= app.data.service.value}">
-      <div class="md-toolbar-tools">
-        <span>{{((app.revenueEstimate / app.costEstimate) < app.data.service.value) || app.checkNaN(app.revenueEstimate / app.costEstimate) || app.checkNaN(app.data.service.value) ? 'Needs Review' : 'Proceed'}}</span>
-      </div>
-    </md-toolbar>
-    <md-toolbar ng-show="parkForm.$invalid" layout="row" class="md-warn">
-      <div class="md-toolbar-tools">
-        <span ng-show="parkForm.$invalid">Incomplete</span>
-      </div>
-    </md-toolbar>      
-    <br/>
-    <div>
-      <md-button style="width:95%" ng-disabled="parkForm.$invalid || (app.user.email != app.data.preparer ) && !app.user.admin || app.data.personnel.length < 1" class="md-primary md-raised" ng-click="app.submit()">{{app.id ? 'Update': 'Submit'}}</md-button>
-      <md-tooltip ng-if="parkForm.$invalid || (app.user.email != app.data.preparer ) && !app.user.admin">{{app.user.email != app.data.preparer ? 'You cannot edit an entry you did not create' : 'All required fields must be entered before submitting'}}</md-tooltip>
-    </div>
-    <div>
-      <md-button style="width:95%" class="md-warn md-raised" ng-click="app.clear()">Clear</md-button>       
-    </div>
-  </md-sidenav>
+  <div flex layout="row" ng-controller="AppController as app">
 
-  <!-- Container #4 -->
   <md-content flex id="content">
     <div ng-cloak>
       <md-content>
         <form novalidate name="parkForm">
-          <md-tabs md-dynamic-height md-border-bottom md-selected="app.selectedTab">
-            <md-tab label="instructions">
-              <md-content class="md-padding">
-                <h2 style="font-weight: normal">Welcome {{app.user.email}}</h2>
-                <div layout="row" layout-wrap>           
-                  <md-button class="md-primary" type="button" ng-click="app.nextTab()">Next >></md-button>              
-                </div>              
-              </md-content>
-            </md-tab>
-            <md-tab label="general information">
-              <md-content>
-                <md-input-container class="md-block" >
-                  <label>Program Area</label>
-                  <md-select ng-required="true" ng-model="app.data.programArea" ng-change="app.programSelected = true" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-
-                    <md-option ng-repeat="program in app.programs | orderBy: 'name'" ng-value="program">
-                      {{program.name}}
-                    </md-option>
-                  </md-select>
-                </md-input-container>
-
-                <md-input-container class="md-block" >
-                  <label>Program Title</label>
-                  <input ng-required="true" ng-model="app.data.title" placeholder="What is your program called?" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                </md-input-container>
-
-                <md-input-container class="md-block" >
-                  <label>Category of Service</label>
-                  <md-select ng-required="true" ng-model="app.data.service">
-
-                    <md-option ng-repeat="service in app.services | orderBy: 'name'" ng-value="service">
-                      {{service.name}}
-                    </md-option>
-                  </md-select>
-                </md-input-container>
-                <md-checkbox ng-model="app.data.cityFacility" aria-label="Is this a City facility?" ng-change="app.data.facility = null" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                  Is this a City facility?
-                </md-checkbox>              
-                <md-input-container ng-if="app.data.cityFacility" class="md-block" >
-                  <label>Facility Name</label>
-                  <md-select ng-required="true" ng-model="app.data.facility" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-
-                    <md-option ng-repeat="facility in app.facilities | orderBy: 'name'" ng-value="facility">
-                      {{facility.name}}
-                    </md-option>
-                  </md-select>                  
-                </md-input-container>
-                <md-input-container ng-if="!app.data.cityFacility" class="md-block" >
-                  <label>Facility Name</label>
-                  <input ng-required="true" ng-model="app.data.facility.name" placeholder="Enter the facility name" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                </md-input-container>                
-                <md-input-container class="md-block">
-                  <label>Start Date</label>
-                  <md-datepicker ng-model="app.data.start" name="dateField" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin"></md-datepicker>
-                </md-input-container>
-                <md-input-container class="md-block" >
-                  <label>Comments</label>
-                  <input ng-model="app.data.comments" placeholder="Enter any comments" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                </md-input-container>
-                <md-input-container class="md-block" >
-                  <label>Prepared By</label>
-                  <input ng-disabled="true" ng-model="app.data.preparer"  ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                </md-input-container>                
-              </md-content>
-              <div layout="row" layout-wrap>
-                <md-button class="md-primary" type="button" ng-click="app.backTab()"><< Back</md-button>                
-                <md-button class="md-primary" type="button" ng-click="app.nextTab()">Next >></md-button>              
-              </div>            
-            </md-tab>
-            <md-tab label="revenue estimates">
-              <md-content class="md-padding">
-                <div flex-gt-sm="50" layout="row">
-                  <md-checkbox ng-model="app.data.newProgram" aria-label="Is this a new program?" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                    Is this a new program?
-                  </md-checkbox>
-                  <md-checkbox ng-model="app.data.full" aria-label="Is this program usually full?" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                    Is this program usually full?
-                  </md-checkbox>                
-                </div>           
-                <h2>Program Length</h2>
-                <md-input-container >
-                  <label>Hours Per Week</label>
-                  <input ng-required="true" ng-min="0" type="number" ng-model="app.data.hours" placeholder="" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                </md-input-container>
-
-                <md-input-container class="">
-                  <label>Length of Program in Weeks</label>
-                  <div layout="row">
-                    <div flex>
-                      <input ng-pattern="/^\d+$/" ng-required="true" ng-min="0" type="number" ng-model="app.data.weeks" placeholder="" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                    </div>
-                    <div flex>
-                      <md-button class="md-icon-button" >
-                        <md-tooltip>for 1-day classes, the length of the class should be 1 week</md-tooltip>
-                        <md-icon md-svg-icon="feedback"></md-icon>
-                      </md-button>
-                    </div>
-                  </div>
-                </md-input-container>
-                <div>  
-                  <strong>Total Hours</strong>
-                  <span ng-hide="app.checkNaN(app.data.weeks * app.data.hours)">{{app.data.weeks * app.data.hours}}</span>
-                  <span ng-show="app.checkNaN(app.data.weeks * app.data.hours)">--</span>        
-                </div>  
-                <h2>Participants Estimate</h2>
-                <md-input-container class="" >
-                  <label>Minimum # of Participants</label>
-                  <input ng-pattern="/^\d+$/" ng-required="true" ng-min="0" type="number" ng-model="app.data.minParticipants" placeholder="" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                </md-input-container>
-                <md-input-container class="" >
-                  <label>Maximum # of Participants</label>
-                  <input ng-pattern="/^\d+$/" ng-required="true" ng-min="0" type="number" ng-model="app.data.maxParticipants" placeholder="" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                </md-input-container>
-                <h2>Fee Estimate</h2>
-                <md-input-container class="" >
-                  <label>Resident Rate</label>
-                  <input ng-required="true" ng-min="0" ng-change="app.residentialRateChanged(app.data.residentialRate)" type="number" ng-model="app.data.residentialRate" placeholder="" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                </md-input-container>
-                <div>  
-                  <label>Non-Resident Rate</label>
-                  <span>{{app.data.nonResidentialRate | currency: '$'}}</span>
-                </div>              
-                <h2>Alternative Revenue Source</h2>              
-                <md-input-container class="md-block" >
-                  <label>Description</label>
-                  <input ng-model="app.data.altRevDesc" placeholder="" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                </md-input-container>
-
-                <md-input-container class="" >
-                  <label>Amount</label>
-                  <input ng-min="0" type="number" ng-model="app.data.altRevAmt" placeholder="" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                </md-input-container>
-                <div layout="row" layout-wrap>
-                  <md-button class="md-primary" type="button" ng-click="app.backTab()"><< Back</md-button>                
-                  <md-button class="md-primary" type="button" ng-click="app.nextTab()">Next >></md-button>              
-                </div>                
-              </md-content>
-            </md-tab>
-            <md-tab label="cost estimates">
-              <md-content class="md-padding">
-                <h2>Supplies</h2>
-                <md-input-container class="md-block" >
-                  <label>Description</label>
-                  <input ng-model="app.data.supplyDesc" placeholder="" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                </md-input-container>
-                <md-input-container class="" >
-                  <label>Amount</label>
-                  <div layout="row">
-                    <div flex>
-                      <input ng-min="0" type="number" ng-model="app.data.supplyAmt" placeholder="" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                    </div>
-                    <div flex>
-                      <md-button class="md-icon-button" >
-                        <md-tooltip>supply fees that are either paid directly to the instructor or that are<br/> used to purchase a specific supply that is directly given to the student<br/> (such as clay, or an instructional book), that is not included in the split,<br/> should not be included in Cost Estimates</md-tooltip>
-                        <md-icon md-svg-icon="feedback"></md-icon>
-                      </md-button>
-                    </div>
-                  </div>
-                </md-input-container>
-                <h2>Personnel Types</h2>
-                <md-button class="md-raised md-primary" ng-click="app.addPersonnel()" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">Add</md-button>
-                <md-card ng-repeat="type in app.data.personnel | orderBy: 'name'" class="personnelCard">
-                  <md-toolbar md-scroll-shrink ng-if="true">
-                    <div class="md-toolbar-tools">
-                      <h3 ng-click="app.togglePersonnel(type, $index)">
-                        <span>{{type.title}} <span ng-if="type.count">({{type.count}})</span> <span ng-if="type.cost">- {{type.cost | currency: '$'}}</span></span>
-                      </h3>
-                      <span flex></span>
-                      <md-button class="md-icon-button" ng-click="app.togglePersonnel(type, $index)">
-                        <md-icon md-svg-icon="up" class="arrow" ng-class="{'rotated': type.visible, 'not-rotated': !type.visible}" ng-animate="{enter: 'rotate', leave: 'not-rotated'}"  ></md-icon>
-                      </md-button>        
-                    </div>
-                  </md-toolbar>
-                  <div ng-if="type.visible" class="personnelContent"">  
-                    <md-card-content>
-                      <md-input-container class="md-block" >
-                        <label>Job Title</label>
-                        <md-select ng-required="true" ng-model="app.data.personnel[$index].title" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-
-                          <md-option ng-repeat="job in app.jobs" ng-value="job.name">
-                            {{job.name}}
-                          </md-option>
-                        </md-select>
-                      </md-input-container>
-                      <md-input-container class="md-block" >
-                        <label>Pay Type</label>
-                        <md-select ng-required="true" ng-model="app.data.personnel[$index].payType" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-
-                          <md-option ng-repeat="type in app.payTypes" ng-value="type.name">
-                            {{type.name}}
-                          </md-option>
-                        </md-select>
-                      </md-input-container>
-                      <md-input-container class="md-block" >
-                        <label>Status</label>
-                        <md-select ng-required="true" ng-model="app.data.personnel[$index].status" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-
-                          <md-option ng-repeat="status in app.statuses" ng-value="status.name">
-                            {{status.name}}
-                          </md-option>
-                        </md-select>
-                      </md-input-container>
-                      <md-input-container class="" >
-                        <label>Pay Rate</label>
-                        <input ng-required="true" ng-min="0" type="number" ng-model="app.data.personnel[$index].rate" placeholder="" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                      </md-input-container> 
-                      <md-input-container class="" >
-                        <label>Personnel Count</label>
-                        <input ng-pattern="/^\d+$/" ng-required="true" ng-min="0" type="number" ng-model="app.data.personnel[$index].count" placeholder="" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">
-                      </md-input-container>
-                    </md-card-content>
-                    <md-card-actions layout="row" layout-align="end center">
-                      <md-button class="md-warn md-raised" ng-click="app.removePersonnel($index)" ng-disabled="(app.user.email != app.data.preparer) && !app.user.admin">Remove</md-button>
-                    </md-card-actions>
-                  </div>
-                </md-card>
-                <div layout="row" layout-wrap>
-                  <md-button class="md-primary" type="button" ng-click="app.backTab()"><< Back</md-button>                
-                  <md-button class="md-primary" type="button" ng-click="app.nextTab()">Next >></md-button>              
-                </div>
-              </md-content>
-            </md-tab>
-            <md-tab label="history" md-on-select="app.getHistory()">
-              <md-content class="md-padding">
-                <div ng-show="app.showFilter">
-                  <div layout="row" layout-wrap>
-                    <md-input-container class="md-block" >
-                      <label>Program Area</label>
-                      <md-select ng-model="app.filter.programArea" ng-change="app.getHistory()">
-                        <md-option><em>None</em></md-option>
-                        <md-option ng-repeat="program in app.programs | orderBy: 'name'" ng-value="program">
-                          {{program.name}}
-                        </md-option>
-                      </md-select>
-                    </md-input-container>
-                    <md-input-container class="md-block" >
-                      <label>Category of Service</label>
-                      <md-select ng-model="app.filter.service" ng-change="app.getHistory()">
-                        <md-option><em>None</em></md-option>
-                        <md-option ng-repeat="service in app.services | orderBy: 'name'" ng-value="service">
-                          {{service.name}}
-                        </md-option>
-                      </md-select>
-                    </md-input-container> 
-
-                    <md-input-container class="md-block">
-                      <label>Submitted After</label>
-                      <md-datepicker ng-model="app.filter.from" name="dateField" md-hide-icons="calendar"></md-datepicker>
-                    </md-input-container>
-                    <md-input-container class="md-block">
-                      <label>Submitted Before</label>
-                      <md-datepicker ng-model="app.filter.to" name="dateField"  md-hide-icons="calendar"></md-datepicker>
-                    </md-input-container>                                                                                
-                  </div>
-                  <div layout="row" layout-wrap ng-show="app.showFilter">
-                    <md-input-container class="md-block" style="min-width: 200px;">
-                      <label>Title or Facility</label>
-                      <input ng-change="app.titleFilterChanged(app.filter.title)" ng-model="app.filter.title" placeholder="Contains this text"></input>
-                    </md-input-container>              
-                    <md-checkbox class="filter-check" layout="row" layout-wrap ng-model="app.filter.me" aria-label="Created by me" ng-change="app.getHistory()">
-                      Created by me
-                    </md-checkbox>
-
-                  </div>
-                </div>
-                <md-button class="md-primary" type="button" ng-click="app.showFilter = !app.showFilter">{{app.showFilter ? 'Hide Filter' : 'Show Filter'}}</md-button>              
-                <md-button class="md-primary" type="button" ng-click="app.exportCsv()">Export</md-button>
-                <md-card class="history-card" ng-repeat="entry in app.history">
-                 <md-toolbar layout-wrap ng-if="true">
-                  <div layout="row" class="md-toolbar-tools">
-                    <h3 ng-click="app.togglePersonnel(type, $index)">
-                      {{entry.title}} at {{entry.facility}} ({{entry.start | date: 'M/d/yyyy'}})
-                    </h3>
-                    <span flex></span>
-                    <md-button  ng-show="$mdMedia('gt-sm')" ng-if="app.user.admin" class="md-raised md-warn" ng-click="app.showConfirm($event, entry)">Delete</md-button>                       
-                    <md-button ng-show="$mdMedia('gt-sm')" class="md-raised" ng-click="app.showCopyConfirm($event, entry)">Copy</md-button>                      
-                    <md-button ng-show="$mdMedia('gt-sm')" class="md-raised" ng-click="app.selectEntry(entry)">Select</md-button>
-                    <md-menu ng-hide="$mdMedia('gt-sm')">
-                      <md-button aria-label="Open actions menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
-                        <md-icon md-menu-origin md-svg-icon="more"></md-icon>
-                      </md-button>
-                      <md-menu-content>
-                        <md-menu-item ng-if="app.user.admin || app.user.email === app.data.preparer">
-                          <md-button ng-class="md-warn" ng-click="app.showConfirm($event, entry)" ng-if="app.user.admin">
-                            Delete
-                          </md-button>
-                        </md-menu-item>
-                        <md-menu-item>
-                          <md-button ng-click="app.copyEntry(entry)">
-                            Copy
-                          </md-button>
-                        </md-menu-item>
-                        <md-menu-item>
-                          <md-button ng-click="app.selectEntry(entry)">
-                            Select                              
-                          </md-button>
-                        </md-menu-item>
-                      </md-menu-content>
-                    </md-menu>
-                  </div>
-                </md-toolbar>              
-                <md-card-title>
-                  <md-card-title-text>
-                    <div layout="row"  layout-wrap>
-                      <md-input-container class="" >
-                        <label>Program Area</label>
-                        <br/>
-                        <p>{{entry.programArea}}</p>
-                      </md-input-container>
-                      <md-input-container class="" >
-                        <label>Category</label>
-                        <br/>
-                        <p>{{entry.category.name}}</p>
-                      </md-input-container>                    
-                      <md-input-container class="" >
-                        <label>Submitted</label>
-                        <br/>
-                        <p>{{entry.submitted | date: 'short'}}</p>
-                      </md-input-container>
-                      <md-input-container class="" >
-                        <label>Prepared By</label>
-                        <br/>
-                        <p>{{entry.preparer}}</p>
-                      </md-input-container>                                              
-                    </div>
-                    <div layout="row"  layout-wrap>
-                      <md-input-container class="" >
-                        <label>Revenue Estimate</label>
-                        <br/>
-                        <p>{{entry.revenue | currency: '$'}}</p>
-                      </md-input-container>
-                      <md-input-container class="" >
-                        <label>Cost Estimate</label>
-                        <br/>
-                        <p>{{entry.cost | currency: '$'}}</p>
-                      </md-input-container>
-                      <md-input-container class="" >
-                        <label>Cost Recovery (Target)</label>
-                        <br/>
-                        <p>{{(entry.recoveryTarget * 100).toFixed(0)}}%</p>
-                      </md-input-container>
-                      <md-input-container class="" >
-                        <label>Cost Recovery (Projected)</label>
-                        <br/>
-                        <p>{{(entry.recoveryProjected * 100).toFixed(0)}}%</p>
-                      </md-input-container>                                                             
-                    </div>                    
-                    <md-button class="md-raised" ng-class="{'md-warn': entry.needsReview, 'md-primary': !entry.needsReview}">{{entry.needsReview ? 'Needs Review' : 'Proceed'}}</md-button>
-                  </md-card-title-text>
-                </md-card-title>
-              </md-card>                                             
-            </md-list>          
-            <div layout="row" layout-wrap>
-              <md-button class="md-primary" type="button" ng-click="app.backTab()"><< Back</md-button>             
-            </div>                
-          </md-content>
-        </md-tab>                        
-      </md-tabs>
-    </form>
+          <h2>Contact Information</h2>
+          <md-input-container class="md-block">
+            <label>Project Contact Person</label>
+            <input ng-required="true" ng-model="app.data.contact" placeholder="Who is the contact person for this request?"/>
+          </md-input-container>
+          <div layout="row">
+            <md-input-container class="md-block">
+              <label>Phone</label>
+              <input ng-required="true" ng-model="app.data.phone" placeholder="XXX-XXX-XXXX"/>
+            </md-input-container>
+            <md-input-container class="md-block">
+              <label>Mobile</label>
+              <input ng-required="true" ng-model="app.data.mobile" placeholder="XXX-XXX-XXXX"/>
+            </md-input-container>
+            <md-input-container class="md-block">
+              <label>Email</label>
+              <input type="email" ng-required="true" ng-model="app.data.email" placeholder="user@domain.com"/>
+            </md-input-container>  
+          </div>
+          <md-radio-group ng-model="app.data.devplan" layout="row" layout-padding="1em">
+          <span>Is the project associated with an approved development plan?</span>          
+            <md-radio-button value="0" class="md-primary">Yes</md-radio-button>
+            <md-radio-button value="1"> No </md-radio-button>
+          </md-radio-group>
+          <div layout="row">
+            <md-input-container class="md-block" ng-show="app.data.devplan === '0'">
+              <label>Plan Name</label>
+              <input ng-required="true" ng-model="app.data.planname" placeholder="What is the plan name?"/>
+            </md-input-container>
+            <md-input-container class="md-block" ng-show="app.data.devplan === '0'">
+              <label>Case #</label>
+              <input type="email" ng-required="true" ng-model="app.data.casenum" placeholder="What is the case #?"/>
+            </md-input-container>     
+          </div>
+          <md-input-container class="md-block">
+            <label>Project Name</label>
+            <input ng-required="true" ng-model="app.data.projectname" placeholder="What is the name of your project?"/>
+          </md-input-container>
+          <h2>Property Information</h2>
+          <md-autocomplete
+            ng-disabled="false"
+            md-no-cache="false"
+            md-selected-item="app.selectedAddress"
+            md-search-text="app.addressText"
+            md-selected-item-change="vm.selectedItemChange(address)"
+            md-items="address in app.addressSearch(app.addressText)"
+            md-item-text="address.attributes.ADDRESS"
+            md-min-length="4"
+            md-autoselect="true"
+            placeholder="Enter and select the property address">
+            <span md-highlight-text="searchText">{{permit.attributes.workOrderId}}</span>
+          </md-autocomplete>
+          <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch>
+            <md-card-title>
+              <md-card-title-text>
+                <span class="md-headline">MAP GOES HERE</span>
+              </md-card-title-text>
+            </md-card-title>
+          </md-card>
+          <md-radio-group ng-model="app.data.participated" layout="row" layout-padding="1em">
+          <span>Has anyone participated or scheduled a Rezoning Pre-Application Conference for this property?</span>          
+            <md-radio-button value="0" class="md-primary">Yes</md-radio-button>
+            <md-radio-button value="1"> No </md-radio-button>
+          </md-radio-group>
+          <md-radio-group ng-model="app.data.reviewed" layout="row" layout-padding="1em">
+          <span>Have you reviewed the DDS Checklist, and hereby acknowledge the scope of the service?</span>          
+            <md-radio-button value="0" class="md-primary">Yes</md-radio-button>
+            <md-radio-button value="1"> No </md-radio-button>
+          </md-radio-group>
+          <h2>Questions</h2>
+          <md-input-container class="md-block">
+            <label>Description of the proposed work and any special conditions?</label>
+            <textarea ng-model="app.data.description"></textarea>
+          </md-input-container>
+          <md-input-container class="md-block">
+            <label>Question #1</label>
+            <input ng-model="app.data.q1"/>
+          </md-input-container>
+          <md-input-container class="md-block">
+            <label>Question #2</label>
+            <input ng-model="app.data.q2"/>
+          </md-input-container>       
+          <md-input-container class="md-block">
+            <label>Question #3</label>
+            <input ng-model="app.data.q3"/>
+          </md-input-container>       
+          <md-input-container class="md-block">
+            <label>Question #4</label>
+            <input ng-model="app.data.q4"/>
+          </md-input-container> 
+          <md-button class="md-raised md-primary">Submit</md-button>                                                                                                    
+        </form>
+    </div>
   </md-content>
 </div>
