@@ -56,13 +56,7 @@
             placeholder="Enter and select the property address">
             <span md-highlight-text="searchText">{{permit.attributes.workOrderId}}</span>
           </md-autocomplete>
-          <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch>
-            <md-card-title>
-              <md-card-title-text>
-                <span class="md-headline">MAP GOES HERE</span>
-              </md-card-title-text>
-            </md-card-title>
-          </md-card>
+            <div id="viewDiv"></div>
           <md-radio-group ng-model="app.data.participated" layout="row" layout-padding="1em">
           <span>Has anyone participated or scheduled a Rezoning Pre-Application Conference for this property?</span>          
             <md-radio-button value="0" class="md-primary">Yes</md-radio-button>

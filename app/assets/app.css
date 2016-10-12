@@ -234,3 +234,9 @@ md-progress-linear {
     z-index: 1000;
   }
 }
+
+
+#viewDiv {
+  width: 100%;
+  height: 400px;
+}
