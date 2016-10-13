@@ -9,23 +9,21 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
     var self = this;
     var map = null,
         view = null;
-      self.showAlert = function(ev) {
-        // Appending dialog to document.body to cover sidenav in docs app
-        // Modal dialogs should fully cover application
-        // to prevent interaction outside of dialog
+    self.showAlert = function (ev) {
         $mdDialog.show(
-          $mdDialog.alert()
-            .parent(angular.element(document.querySelector('#popupContainer')))
-            .clickOutsideToClose(true)
-            .title('This is an alert title')
-            .textContent('You can specify some description text in here.')
-            .ariaLabel('Alert Dialog Demo')
-            .ok('Got it!')
-            .targetEvent(ev)
+            $mdDialog.alert()
+                .parent(angular.element(document.querySelector('#popupContainer')))
+                .clickOutsideToClose(true)
+                .title('This is an alert title')
+                .textContent('You can specify some description text in here.')
+                .ariaLabel('Alert Dialog Demo')
+                .ok('Got it!')
+                .targetEvent(ev)
         );
-      };        
-    self.data = {contact: 'Justin Greco', 
-        phone: '919-996-2523', 
+    };
+    self.data = {
+        contact: 'Justin Greco',
+        phone: '919-996-2523',
         mobile: '919-996-2523',
         email: 'justin.greco@raleighnc.gov',
         project: 'test',
@@ -39,26 +37,33 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
         devplan: 1
     };
     self.submitForm = function () {
-        self.selectedAddress.geometry.spatialReference = {wkid: 4326};
+        self.selectedAddress.geometry.spatialReference = {
+            wkid: 4326
+        };
         $http({
             url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence_Sessions/FeatureServer/0/addFeatures",
             method: 'POST',
-            data: $httpParamSerializerJQLike({f: 'json', features: JSON.stringify([{attributes: self.data, 
-                geometry: self.selectedAddress.geometry}])}),
+            data: $httpParamSerializerJQLike({
+                f: 'json',
+                features: JSON.stringify([{
+                    attributes: self.data,
+                    geometry: self.selectedAddress.geometry
+                }])
+            }),
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded'
             }
-          }).then(function (result) {
+        }).then(function (result) {
             console.log(result);
         });
     };
-    self.addressSearch = function(addressText) {
+    self.addressSearch = function (addressText) {
         return $http.get("https://maps.raleighnc.gov/arcgis/rest/services/Addresses/MapServer/0/query?returnGeometry=true&outSR=4326&geometryPrecision=5&f=json&orderByFields=ADDRESS&where=ADDRESSU like '" + addressText.toUpperCase() + "%'")
-            .then(function(result) {
+            .then(function (result) {
                 return result.data.features;
             });
     };
-    self.getZoning = function (point, queryTask, query) {
+    self.getZoning = function (queryTask, query) {
         query.outFields = ['ZONING'];
         query.returnGeometry = false;
         queryTask.url = "http://maps.raleighnc.gov/arcgis/rest/services/Planning/Zoning/MapServer/0";
@@ -67,11 +72,13 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
                 self.data.zoning = result.features[0].attributes.ZONING;
                 $scope.$digest();
             }
-        });        
+        });
     };
-    self.getProperty  = function (point) {
+    self.getProperty = function (point) {
         require(["esri/tasks/QueryTask", "esri/tasks/support/Query"], function (QueryTask, Query) {
-            var queryTask = new QueryTask({url: 'https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0'})
+            var queryTask = new QueryTask({
+                url: 'https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0'
+            });
             var query = new Query();
             query.returnGeometry = true;
             query.outFields = ['OWNER', 'PIN_NUM'];
@@ -83,14 +90,14 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
                     self.data.owner = result.features[0].attributes.OWNER;
                     self.data.pin1 = result.features[0].attributes.PIN_NUM;
                     $scope.$digest();
-                    self.getZoning(point, queryTask, query);
+                    self.getZoning(queryTask, query);
                 }
             });
         });
     };
-    self.addAddressToMap = function(address) {
+    self.addAddressToMap = function (address) {
         if (address) {
-            require(["esri/Graphic", "esri/geometry/Point", "esri/symbols/SimpleMarkerSymbol"], function(Graphic, Point, SimpleMarkerSymbol) {
+            require(["esri/Graphic", "esri/geometry/Point", "esri/symbols/SimpleMarkerSymbol"], function (Graphic, Point, SimpleMarkerSymbol) {
                 var markerSymbol = new SimpleMarkerSymbol({
                     color: [226, 119, 40],
                     outline: { // autocasts as new SimpleLineSymbol()
@@ -99,12 +106,21 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
                     }
                 });
 
-                var pointGraphic = new Graphic({geometry: new Point({longitude: address.geometry.x, latitude: address.geometry.y}), attributes: address.attributes});
+                var pointGraphic = new Graphic({
+                    geometry: new Point({
+                        longitude: address.geometry.x,
+                        latitude: address.geometry.y
+                    }),
+                    attributes: address.attributes
+                });
                 pointGraphic.symbol = markerSymbol;
                 view.graphics.removeAll();
                 view.graphics.add(pointGraphic);
-                self.getProperty(new Point({longitude: address.geometry.x, latitude: address.geometry.y}));
-            });            
+                self.getProperty(new Point({
+                    longitude: address.geometry.x,
+                    latitude: address.geometry.y
+                }));
+            });
         }
 
     };
@@ -117,16 +133,15 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
             self.data.address = self.selectedAddress.attributes.ADDRESS;
             self.addAddressToMap(address);
         }
-        
+
     };
     self.createMap = function () {
         require([
             "esri/Map",
             "esri/views/MapView",
             "esri/layers/VectorTileLayer",
-            "esri/layers/FeatureLayer",
             "dojo/domReady!"
-        ], function (Map, MapView, VectorTileLayer, FeatureLayer) {
+        ], function (Map, MapView, VectorTileLayer) {
             if (!map) {
                 // Create a Map
                 map = new Map();
