@@ -125,7 +125,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
         if (address) {
             view.goTo({
                 center: [address.geometry.x, address.geometry.y],
-                zoom: 15
+                zoom: 17
             });
             self.data.address = self.selectedAddress.attributes.ADDRESS;
             self.addAddressToMap(address);
@@ -138,6 +138,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
             "esri/layers/VectorTileLayer",
             "dojo/domReady!"
         ], function (Map, MapView, VectorTileLayer) {
+            console.log('load');
             if (!map) {
                 // Create a Map
                 map = new Map();
@@ -159,6 +160,5 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
             }
         });
     };
-    self.createMap();
 }
 export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', AppController];

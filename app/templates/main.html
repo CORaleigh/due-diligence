@@ -1,5 +1,5 @@
-<div flex layout="row" ng-controller="AppController as app" ng-init="app.showSplash($event)">
-    <md-content flex id="content">
+<div ng-controller="AppController as app" ng-init="app.showSplash($event);app.createMap()">
+    <md-content id="content">
         <div ng-cloak>
             <md-content>
                 <form novalidate name="parkForm" ng-submit="app.submitForm()">
@@ -45,7 +45,10 @@
                     <md-autocomplete ng-disabled="false" md-no-cache="false" md-selected-item="app.selectedAddress" md-search-text="app.addressText" md-selected-item-change="app.addressSelected(address)" md-items="address in app.addressSearch(app.addressText)" md-item-text="address.attributes.ADDRESS" md-min-length="4" md-autoselect="true" placeholder="Enter and select the property address">
                         <span md-highlight-text="searchText">{{address.attributes.ADDRESS}}</span>
                     </md-autocomplete>
-                    <div id="viewDiv"></div>
+                    <p/>
+                    <div style="height: 400px; width: 100%;">
+                      <div id="viewDiv"></div>                    
+                    </div>
                     <md-card layout="row" layout-padding layout-wrap>
                         <div ng-show="app.data.owner">
                             <div class="md-subhead">
