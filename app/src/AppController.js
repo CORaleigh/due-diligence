@@ -82,7 +82,6 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
             var query = new Query();
             query.returnGeometry = true;
             query.outFields = ['OWNER', 'PIN_NUM'];
-
             query.geometry = point;
             query.spatialRelationship = 'intersects';
             queryTask.execute(query).then(function (result) {
@@ -105,7 +104,6 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
                         width: 2
                     }
                 });
-
                 var pointGraphic = new Graphic({
                     geometry: new Point({
                         longitude: address.geometry.x,
@@ -122,7 +120,6 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
                 }));
             });
         }
-
     };
     self.addressSelected = function (address) {
         if (address) {
@@ -133,7 +130,6 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
             self.data.address = self.selectedAddress.attributes.ADDRESS;
             self.addAddressToMap(address);
         }
-
     };
     self.createMap = function () {
         require([
@@ -145,7 +141,6 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
             if (!map) {
                 // Create a Map
                 map = new Map();
-
                 // Make map view and bind it to the map
                 view = new MapView({
                     container: "viewDiv",
@@ -157,17 +152,13 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
                     url: "https://www.arcgis.com/sharing/rest/content/items/bf79e422e9454565ae0cbe9553cf6471/resources/styles/root.json"
                 });
                 map.add(tileLyr);
-
                 var parcels = new VectorTileLayer({
                     url: "https://www.arcgis.com/sharing/rest/content/items/40654681938f4836b3b9bff62c2d3e40/resources/styles/root.json"
                 });
                 map.add(parcels);
             }
         });
-
     };
     self.createMap();
-
-
 }
 export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', AppController];
