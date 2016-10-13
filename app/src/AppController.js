@@ -49,11 +49,11 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
                 return result.data.features;
             });
     };
-    self.getZoning = function (queryTask, query) {
+    self.getZoning = function (QueryTask, query) {
         query.outFields = ['ZONING'];
         query.returnGeometry = false;
-        queryTask.url = "http://maps.raleighnc.gov/arcgis/rest/services/Planning/Zoning/MapServer/0";
-        queryTask.execute(query).then(function (result) {
+        var queryTask = new QueryTask("http://maps.raleighnc.gov/arcgis/rest/services/Planning/Zoning/MapServer/0")
+        queryTask.execute(query, function (result) {
             if (result.features.length > 0) {
                 self.data.zoning = result.features[0].attributes.ZONING;
                 $scope.$digest();
@@ -61,28 +61,28 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
         });
     };
     self.getProperty = function (point) {
-        require(["esri/tasks/QueryTask", "esri/tasks/support/Query"], function (QueryTask, Query) {
-            var queryTask = new QueryTask({
-                url: 'https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0'
-            });
+        require(["esri/tasks/QueryTask", "esri/tasks/query"], function (QueryTask, Query) {
+            var queryTask = new QueryTask(
+                'https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0'
+            );
             var query = new Query();
             query.returnGeometry = true;
             query.outFields = ['OWNER', 'PIN_NUM'];
             query.geometry = point;
-            query.spatialRelationship = 'intersects';
-            queryTask.execute(query).then(function (result) {
+            query.spatialRelationship = 'esriSpatialRelIntersects';
+            queryTask.execute(query, function (result) {
                 if (result.features.length > 0) {
                     self.data.owner = result.features[0].attributes.OWNER;
                     self.data.pin1 = result.features[0].attributes.PIN_NUM;
                     $scope.$digest();
-                    self.getZoning(queryTask, query);
+                    self.getZoning(QueryTask, query);
                 }
             });
         });
     };
     self.addAddressToMap = function (address) {
         if (address) {
-            require(["esri/Graphic", "esri/geometry/Point", "esri/symbols/SimpleMarkerSymbol"], function (Graphic, Point, SimpleMarkerSymbol) {
+            require(["esri/graphic", "esri/geometry/Point", "esri/symbols/SimpleMarkerSymbol"], function (Graphic, Point, SimpleMarkerSymbol) {
                 var markerSymbol = new SimpleMarkerSymbol({
                     color: [226, 119, 40],
                     outline: { // autocasts as new SimpleLineSymbol()
@@ -98,8 +98,8 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
                     attributes: address.attributes
                 });
                 pointGraphic.symbol = markerSymbol;
-                view.graphics.removeAll();
-                view.graphics.add(pointGraphic);
+                map.graphics.clear();
+                map.graphics.add(pointGraphic);
                 self.getProperty(new Point({
                     longitude: address.geometry.x,
                     latitude: address.geometry.y
@@ -109,40 +109,50 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
     };
     self.addressSelected = function (address) {
         if (address) {
-            view.goTo({
-                center: [address.geometry.x, address.geometry.y],
-                zoom: 17
-            });
+            map.centerAndZoom([address.geometry.x, address.geometry.y], 17);
             self.data.address = self.selectedAddress.attributes.ADDRESS;
             self.addAddressToMap(address);
         }
     };
     self.createMap = function () {
         require([
-            "esri/Map",
-            "esri/views/MapView",
+            "esri/map",
             "esri/layers/VectorTileLayer",
+            "esri/layers/FeatureLayer",
+            "esri/renderers/SimpleRenderer",
             "dojo/domReady!"
-        ], function (Map, MapView, VectorTileLayer) {
+        ], function (Map, VectorTileLayer, FeatureLayer, SimpleRenderer) {
             console.log('load');
             if (!map) {
-                // Create a Map
-                map = new Map();
-                // Make map view and bind it to the map
-                view = new MapView({
-                    container: "viewDiv",
-                    map: map,
+                  map = new Map("viewDiv", {
                     center: [-78.65, 35.8],
                     zoom: 10
-                });
-                var tileLyr = new VectorTileLayer({
-                    url: "https://www.arcgis.com/sharing/rest/content/items/bf79e422e9454565ae0cbe9553cf6471/resources/styles/root.json"
-                });
-                map.add(tileLyr);
-                var parcels = new VectorTileLayer({
-                    url: "https://www.arcgis.com/sharing/rest/content/items/40654681938f4836b3b9bff62c2d3e40/resources/styles/root.json"
-                });
-                map.add(parcels);
+                  });
+
+                var tileLyr = new VectorTileLayer("https://www.arcgis.com/sharing/rest/content/items/bf79e422e9454565ae0cbe9553cf6471/resources/styles/root.json");
+                map.addLayer(tileLyr);
+                // var parcels = new VectorTileLayer({
+                //     url: "https://www.arcgis.com/sharing/rest/content/items/40654681938f4836b3b9bff62c2d3e40/resources/styles/root.json"
+                // });
+                // map.add(parcels);
+                var parcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0");
+                parcels.setRenderer(new SimpleRenderer({
+                    type: "simple",
+                    label: "",
+                    description: "",
+                    symbol: {
+                        type: "esriSFS",
+                        style: "esriSFSNull",
+                        color: [115, 76, 0, 255],
+                        outline: {
+                            type: "esriSLS",
+                            style: "esriSLSSolid",
+                            color: [255, 255, 255, 200],
+                            width: 1
+                        }
+                    }
+                }));
+                map.addLayer(parcels);
             }
         });
     };
