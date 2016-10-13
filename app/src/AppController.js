@@ -126,38 +126,55 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
             "esri/renderers/SimpleRenderer",
             "dojo/domReady!"
         ], function (Map, VectorTileLayer, FeatureLayer, SimpleRenderer) {
-            console.log('load');
-            if (!map) {
-                map = new Map("viewDiv", {
-                    center: [-78.65, 35.8],
-                    zoom: 10
-                });
+            map = new Map("viewDiv", {
+                center: [-78.633333, 35.766667],
+                zoom: 10
+            });
 
-                var tileLyr = new VectorTileLayer("https://www.arcgis.com/sharing/rest/content/items/bf79e422e9454565ae0cbe9553cf6471/resources/styles/root.json");
-                map.addLayer(tileLyr);
-                // var parcels = new VectorTileLayer({
-                //     url: "https://www.arcgis.com/sharing/rest/content/items/40654681938f4836b3b9bff62c2d3e40/resources/styles/root.json"
-                // });
-                // map.add(parcels);
-                var parcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0");
-                parcels.setRenderer(new SimpleRenderer({
-                    type: "simple",
-                    label: "",
-                    description: "",
-                    symbol: {
-                        type: "esriSFS",
-                        style: "esriSFSNull",
-                        color: [115, 76, 0, 255],
-                        outline: {
-                            type: "esriSLS",
-                            style: "esriSLSSolid",
-                            color: [255, 255, 255, 200],
-                            width: 1
-                        }
+            var tileLyr = new VectorTileLayer("https://www.arcgis.com/sharing/rest/content/items/bf79e422e9454565ae0cbe9553cf6471/resources/styles/root.json");
+            map.addLayer(tileLyr);
+            var parcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0");
+            parcels.on("touchend, click, mouse-down", function (e) {
+                console.log(e);
+            });
+            map.addLayer(parcels);
+            parcels.setRenderer(new SimpleRenderer({
+                type: "simple",
+                label: "",
+                description: "",
+                symbol: {
+                    type: "esriSFS",
+                    style: "esriSFSNull",
+                    color: [115, 76, 0, 255],
+                    outline: {
+                        type: "esriSLS",
+                        style: "esriSLSSolid",
+                        color: [255, 255, 255, 200],
+                        width: 1
                     }
-                }));
-                map.addLayer(parcels);
-            }
+                }
+            }));
+            var durparcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/1");
+            durparcels.setRenderer(new SimpleRenderer({
+                type: "simple",
+                label: "",
+                description: "",
+                symbol: {
+                    type: "esriSFS",
+                    style: "esriSFSNull",
+                    color: [115, 76, 0, 255],
+                    outline: {
+                        type: "esriSLS",
+                        style: "esriSLSSolid",
+                        color: [0, 0, 0, 200],
+                        width: 1
+                    }
+                }
+            }));
+            map.addLayer(durparcels);
+            durparcels.on("touchend, click, mouse-down", function (e) {
+                console.log(e);
+            });
         });
     };
 }
