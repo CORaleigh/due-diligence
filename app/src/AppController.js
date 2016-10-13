@@ -14,28 +14,14 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
     };
     self.showSplash = function (ev) {
         $mdDialog.show({
-          controller: AppController,
-          templateUrl: 'templates/splash.html',
-          parent: angular.element(document.body),
-          targetEvent: ev,
-          clickOutsideToClose:true
+            controller: AppController,
+            templateUrl: 'templates/splash.html',
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true
         });
     };
-    self.data = {
-        contact: 'Justin Greco',
-        phone: '919-996-2523',
-        mobile: '919-996-2523',
-        email: 'justin.greco@raleighnc.gov',
-        project: 'test',
-        description: 'test',
-        question1: 'test',
-        question2: 'test',
-        question3: 'test',
-        question4: 'test',
-        reviewed: 0,
-        participated: 0,
-        devplan: 1
-    };
+    self.data = {};
     self.submitForm = function () {
         self.selectedAddress.geometry.spatialReference = {
             wkid: 4326
