@@ -9,17 +9,17 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
     var self = this;
     var map = null,
         view = null;
-    self.showAlert = function (ev) {
-        $mdDialog.show(
-            $mdDialog.alert()
-                .parent(angular.element(document.querySelector('#popupContainer')))
-                .clickOutsideToClose(true)
-                .title('This is an alert title')
-                .textContent('You can specify some description text in here.')
-                .ariaLabel('Alert Dialog Demo')
-                .ok('Got it!')
-                .targetEvent(ev)
-        );
+    $scope.hideSplash = function () {
+        $mdDialog.hide();
+    };
+    self.showSplash = function (ev) {
+        $mdDialog.show({
+          controller: AppController,
+          templateUrl: 'templates/splash.html',
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          clickOutsideToClose:true
+        });
     };
     self.data = {
         contact: 'Justin Greco',

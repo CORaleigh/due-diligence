@@ -1,4 +1,4 @@
-<div flex layout="row" ng-controller="AppController as app" ng-init="app.showAlert($event)">
+<div flex layout="row" ng-controller="AppController as app" ng-init="app.showSplash($event)">
     <md-content flex id="content">
         <div ng-cloak>
             <md-content>
@@ -22,12 +22,12 @@
                             <input type="email" ng-required="true" ng-model="app.data.email" placeholder="user@domain.com" />
                         </md-input-container>
                     </div>
-                    <md-radio-group ng-model="app.data.devplan" layout="row" layout-padding="1em">
+                    <md-radio-group ng-model="app.data.devplan" layout="row" layout-padding layout-wrap>
                         <span>Is the project associated with an approved development plan?</span>
                         <md-radio-button value="0" class="md-primary">Yes</md-radio-button>
                         <md-radio-button value="1"> No </md-radio-button>
                     </md-radio-group>
-                    <div layout="row">
+                    <div layout="row" layout-wrap>
                         <md-input-container class="md-block" ng-show="app.data.devplan === '0'">
                             <label>Plan Name</label>
                             <input ng-required="true" ng-model="app.data.planname" placeholder="What is the plan name?" />
@@ -46,15 +46,38 @@
                         <span md-highlight-text="searchText">{{address.attributes.ADDRESS}}</span>
                     </md-autocomplete>
                     <div id="viewDiv"></div>
-                    <h1>{{app.data.owner}}</h1>
-                    <h1>{{app.data.pin1}}</h1>
-                    <h1>{{app.data.zoning}}</h1>
-                    <md-radio-group ng-model="app.data.participated" layout="row" layout-padding="1em">
+                    <md-card layout="row" layout-padding layout-wrap>
+                    <div ng-show="app.data.owner">
+                     <div class="md-subhead">
+                      Owner
+                      </div>
+                      <div>
+                        {{app.data.owner}}
+                      </div>
+                      </div>
+                      <div ng-show="app.data.pin1">
+                      <div class="md-subhead">
+                      PIN
+                      </div>
+                      <div>
+                        {{app.data.pin1}}
+                      </div>
+                      </div>
+                      <div ng-show="app.data.zoning">
+                     <div class="md-subhead">
+                      Zoning
+                      </div>
+                      <div>
+                        {{app.data.zoning}}
+                      </div>
+                      </div>
+                    </md-card>
+                    <md-radio-group ng-model="app.data.participated" layout="row" layout-padding layout-wrap>
                         <span>Has anyone participated or scheduled a Rezoning Pre-Application Conference for this property?</span>
                         <md-radio-button value="0" class="md-primary">Yes</md-radio-button>
                         <md-radio-button value="1"> No </md-radio-button>
                     </md-radio-group>
-                    <md-radio-group ng-model="app.data.reviewed" layout="row" layout-padding="1em">
+                    <md-radio-group ng-model="app.data.reviewed" layout="row" layout-padding layout-wrap>
                         <span>Have you reviewed the DDS Checklist, and hereby acknowledge the scope of the service?</span>
                         <md-radio-button value="0" class="md-primary">Yes</md-radio-button>
                         <md-radio-button value="1"> No </md-radio-button>

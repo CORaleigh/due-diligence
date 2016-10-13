@@ -25,6 +25,7 @@ export default angular.module( 'starter-app', [ 'ngMaterial', 'ngAnimate', 'ui.r
       .icon("more", "./assets/svg/more_vert.svg", 24)
       .icon("add", "./assets/svg/add.svg", 24)
       .icon("update", "./assets/svg/update.svg", 24)
+      .icon("close", "./assets/svg/ic_close_white_24px.svg", 24)
       .icon("delete", "./assets/svg/delete.svg", 24);
     $mdThemingProvider.theme('default')
       .primaryPalette('blue')
