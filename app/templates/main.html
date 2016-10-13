@@ -47,30 +47,30 @@
                     </md-autocomplete>
                     <div id="viewDiv"></div>
                     <md-card layout="row" layout-padding layout-wrap>
-                    <div ng-show="app.data.owner">
-                     <div class="md-subhead">
-                      Owner
-                      </div>
-                      <div>
-                        {{app.data.owner}}
-                      </div>
-                      </div>
-                      <div ng-show="app.data.pin1">
-                      <div class="md-subhead">
-                      PIN
-                      </div>
-                      <div>
-                        {{app.data.pin1}}
-                      </div>
-                      </div>
-                      <div ng-show="app.data.zoning">
-                     <div class="md-subhead">
-                      Zoning
-                      </div>
-                      <div>
-                        {{app.data.zoning}}
-                      </div>
-                      </div>
+                        <div ng-show="app.data.owner">
+                            <div class="md-subhead">
+                                Owner
+                            </div>
+                            <div>
+                                {{app.data.owner}}
+                            </div>
+                        </div>
+                        <div ng-show="app.data.pin1">
+                            <div class="md-subhead">
+                                PIN
+                            </div>
+                            <div>
+                                {{app.data.pin1}}
+                            </div>
+                        </div>
+                        <div ng-show="app.data.zoning">
+                            <div class="md-subhead">
+                                Zoning
+                            </div>
+                            <div>
+                                {{app.data.zoning}}
+                            </div>
+                        </div>
                     </md-card>
                     <md-radio-group ng-model="app.data.participated" layout="row" layout-padding layout-wrap>
                         <span>Has anyone participated or scheduled a Rezoning Pre-Application Conference for this property?</span>
@@ -106,5 +106,5 @@
                     <md-button type="submit" class="md-raised md-primary">Submit</md-button>
                 </form>
         </div>
-    </md-content>
+        </md-content>
 </div>
