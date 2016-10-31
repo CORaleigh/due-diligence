@@ -46,31 +46,41 @@
                     <p/>
 
                       <div id="viewDiv"></div>
-                    <md-card layout="row" layout-padding layout-wrap>
-                        <div ng-show="app.data.owner">
-                            <div class="md-subhead">
-                                Owner
+                    <md-card>
+                        <div layout="row" layout-padding layout-wrap>
+                            <div ng-show="app.data.owner">
+                                <div class="md-subhead">
+                                    Owner
+                                </div>
+                                <div>
+                                    {{app.data.owner}}
+                                </div>
                             </div>
-                            <div>
-                                {{app.data.owner}}
+                            <div ng-show="app.data.pin1">
+                                <div class="md-subhead">
+                                    PIN
+                                </div>
+                                <div>
+                                    {{app.data.pin1}}
+                                </div>
+                            </div>
+                            <div ng-show="app.data.zoning">
+                                <div class="md-subhead">
+                                    Zoning
+                                </div>
+                                <div>
+                                    {{app.data.zoning}}
+                                </div>
                             </div>
                         </div>
-                        <div ng-show="app.data.pin1">
+                        <div ng-show="app.pins.length > 0" layout-padding layout-wrap>
                             <div class="md-subhead">
-                                PIN
+                                Additional Properties (single click additional properties to request, click again to remove)
                             </div>
-                            <div>
-                                {{app.data.pin1}}
+                            <div ng-repeat="pin in app.pins">
+                                {{pin}}
                             </div>
-                        </div>
-                        <div ng-show="app.data.zoning">
-                            <div class="md-subhead">
-                                Zoning
-                            </div>
-                            <div>
-                                {{app.data.zoning}}
-                            </div>
-                        </div>
+                        </div>                        
                     </md-card>
                     <md-radio-group ng-model="app.data.participated" layout="row" layout-padding layout-wrap>
                         <span>Has anyone participated or scheduled a Rezoning Pre-Application Conference for this property?</span>

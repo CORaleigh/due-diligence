@@ -9,6 +9,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
     var self = this;
     var map = null,
         view = null;
+    self.parcels = null;
     $scope.hideSplash = function () {
         $mdDialog.hide();
     };
@@ -21,11 +22,13 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
             clickOutsideToClose: true
         });
     };
+    self.pins = [];
     self.data = {};
     self.submitForm = function () {
         self.selectedAddress.geometry.spatialReference = {
             wkid: 4326
         };
+        self.data.pins = self.pins.toString();
         $http({
             url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence_Sessions/FeatureServer/0/addFeatures",
             method: 'POST',
@@ -124,8 +127,12 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
             "esri/layers/VectorTileLayer",
             "esri/layers/FeatureLayer",
             "esri/renderers/SimpleRenderer",
+            "esri/tasks/query",
+            "esri/symbols/SimpleFillSymbol",
+            "esri/symbols/SimpleLineSymbol",
+            "esri/Color",
             "dojo/domReady!"
-        ], function (Map, VectorTileLayer, FeatureLayer, SimpleRenderer) {
+        ], function (Map, VectorTileLayer, FeatureLayer, SimpleRenderer, Query, SimpleFillSymbol, SimpleLineSymbol, Color) {
             map = new Map("viewDiv", {
                 center: [-78.633333, 35.766667],
                 zoom: 10
@@ -133,14 +140,15 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
 
             var tileLyr = new VectorTileLayer("https://www.arcgis.com/sharing/rest/content/items/bf79e422e9454565ae0cbe9553cf6471/resources/styles/root.json");
             map.addLayer(tileLyr);
-            var parcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0", {
-                outFields: ['OWNER', 'PIN_NUM']                
+            self.parcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0", {
+                outFields: ['OWNER', 'PIN_NUM'],
+                mode: FeatureLayer.MODE_ONDEMAND
             });
-            parcels.on("touchend, click", function (e) {
-                console.log(e.graphic.attributes);
-            });
-            map.addLayer(parcels);
-            parcels.setRenderer(new SimpleRenderer({
+
+
+
+            map.addLayer(self.parcels);
+            self.parcels.setRenderer(new SimpleRenderer({
                 type: "simple",
                 label: "",
                 description: "",
@@ -156,8 +164,14 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
                     }
                 }
             }));
+            var selectSymbol =
+                    new SimpleFillSymbol(SimpleFillSymbol.STYLE_NULL,
+                    new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+                    new Color([255, 255, 0]), 4), new Color([255, 255, 0, 0.5]));
+            self.parcels.setSelectionSymbol(selectSymbol);
             var durparcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/1", {
-                outFields: ['OWNER', 'PIN_NUM']
+                outFields: ['OWNER', 'PIN_NUM'],
+                mode: FeatureLayer.MODE_ONDEMAND
             });
             durparcels.setRenderer(new SimpleRenderer({
                 type: "simple",
@@ -170,14 +184,42 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
                     outline: {
                         type: "esriSLS",
                         style: "esriSLSSolid",
-                        color: [0, 0, 0, 200],
+                        color: [255, 255, 255, 200],
                         width: 1
                     }
                 }
             }));
+            durparcels.setSelectionSymbol(selectSymbol);
             map.addLayer(durparcels);
-            durparcels.on("dbl-click, touchend, click, mouse-down", function (e) {
-                console.log(e.graphic.attributes);
+
+            map.on("touchend, click", function (e) {
+                var query = new Query();
+                query.geometry = e.mapPoint;
+                self.parcels.selectFeatures(query, FeatureLayer.SELECTION_ADD, function (results) {
+                    console.log(results);
+                    if (results.length > 0) {
+                        var pin = results[0].attributes.PIN_NUM;
+                        if (self.pins.indexOf(pin) === -1) {
+                            self.pins.push(pin);
+                        } else {
+                            self.pins.splice(self.pins.indexOf(pin), 1);
+                            self.parcels.selectFeatures(query, FeatureLayer.SELECTION_SUBTRACT);
+                        }
+                        $scope.$digest();
+                    }
+                });
+                durparcels.selectFeatures(query, FeatureLayer.SELECTION_ADD, function (results) {
+                    if (results.length > 0) {
+                        var pin = results[0].attributes.PIN_NUM;
+                        if (self.pins.indexOf(pin) === -1) {
+                            self.pins.push(pin);
+                        } else {
+                            self.pins.splice(self.pins.indexOf(pin), 1);
+                            durparcels.selectFeatures(query, FeatureLayer.SELECTION_SUBTRACT);
+                        }
+                        $scope.$digest();
+                    }
+                });
             });
         });
     };
