@@ -4,7 +4,7 @@
  * @param $mdSidenav
  * @constructor
  */
-function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
+function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $timeout) {
     'use strict';
     var self = this;
     var map = null,
@@ -133,9 +133,11 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
 
             var tileLyr = new VectorTileLayer("https://www.arcgis.com/sharing/rest/content/items/bf79e422e9454565ae0cbe9553cf6471/resources/styles/root.json");
             map.addLayer(tileLyr);
-            var parcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0");
-            parcels.on("touchend, click, mouse-down", function (e) {
-                console.log(e);
+            var parcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0", {
+                outFields: ['OWNER', 'PIN_NUM']                
+            });
+            parcels.on("touchend, click", function (e) {
+                console.log(e.graphic.attributes);
             });
             map.addLayer(parcels);
             parcels.setRenderer(new SimpleRenderer({
@@ -144,8 +146,8 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
                 description: "",
                 symbol: {
                     type: "esriSFS",
-                    style: "esriSFSNull",
-                    color: [115, 76, 0, 255],
+                    style: "esriSFSSolid",
+                    color: [115, 76, 0, 0],
                     outline: {
                         type: "esriSLS",
                         style: "esriSLSSolid",
@@ -154,7 +156,9 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
                     }
                 }
             }));
-            var durparcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/1");
+            var durparcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/1", {
+                outFields: ['OWNER', 'PIN_NUM']
+            });
             durparcels.setRenderer(new SimpleRenderer({
                 type: "simple",
                 label: "",
@@ -172,10 +176,16 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
                 }
             }));
             map.addLayer(durparcels);
-            durparcels.on("touchend, click, mouse-down", function (e) {
-                console.log(e);
+            durparcels.on("dbl-click, touchend, click, mouse-down", function (e) {
+                console.log(e.graphic.attributes);
             });
         });
     };
+    self.init = function(event) {
+        self.showSplash(event);
+        $timeout(function () {
+            self.createMap();
+        })
+    };
 }
-export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', AppController];
+export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', '$timeout', AppController];

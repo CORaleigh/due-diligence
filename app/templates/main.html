@@ -1,4 +1,4 @@
-<div ng-controller="AppController as app" ng-init="app.showSplash($event);app.createMap()">
+<div ng-controller="AppController as app" ng-init="app.init($event)">
     <md-content id="content">
                 <form novalidate name="parkForm" ng-submit="app.submitForm()">
                     <h2>Contact Information</h2>
@@ -82,12 +82,12 @@
                         <md-radio-button value="0" class="md-primary">Yes</md-radio-button>
                         <md-radio-button value="1"> No </md-radio-button>
                     </md-radio-group>
-                    <h2>Questions</h2>
+<!--                     <h2>Questions</h2> -->
                     <md-input-container class="md-block">
                         <label>Description of the proposed work and any special conditions?</label>
                         <textarea ng-model="app.data.description"></textarea>
                     </md-input-container>
-                    <md-input-container class="md-block">
+<!--                     <md-input-container class="md-block">
                         <label>Question #1</label>
                         <input ng-model="app.data.question1" />
                     </md-input-container>
@@ -102,7 +102,7 @@
                     <md-input-container class="md-block">
                         <label>Question #4</label>
                         <input ng-model="app.data.question4" />
-                    </md-input-container>
+                    </md-input-container> -->
                     <md-button type="submit" class="md-raised md-primary">Submit</md-button>
                 </form>
     </md-content>
