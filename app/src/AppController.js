@@ -7,9 +7,7 @@
 function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $timeout) {
     'use strict';
     var self = this;
-    var map = null,
-        view = null;
-    self.parcels = null;
+    var map = null;
     $scope.hideSplash = function () {
         $mdDialog.hide();
     };
@@ -140,14 +138,11 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
 
             var tileLyr = new VectorTileLayer("https://www.arcgis.com/sharing/rest/content/items/bf79e422e9454565ae0cbe9553cf6471/resources/styles/root.json");
             map.addLayer(tileLyr);
-            self.parcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0", {
+            var parcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0", {
                 outFields: ['OWNER', 'PIN_NUM'],
                 mode: FeatureLayer.MODE_ONDEMAND
             });
-
-
-
-            map.addLayer(self.parcels);
+            map.addLayer(parcels);
             self.parcels.setRenderer(new SimpleRenderer({
                 type: "simple",
                 label: "",
@@ -223,11 +218,11 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
             });
         });
     };
-    self.init = function(event) {
+    self.init = function (event) {
         self.showSplash(event);
         $timeout(function () {
             self.createMap();
-        })
+        });
     };
 }
 export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', '$timeout', AppController];
