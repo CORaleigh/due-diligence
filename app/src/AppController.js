@@ -42,6 +42,8 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
             }
         }).then(function (result) {
             console.log(result);
+            self.data = {};
+            self.pins = [];
         });
     };
     self.addressSearch = function (addressText) {
@@ -143,7 +145,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
                 mode: FeatureLayer.MODE_ONDEMAND
             });
             map.addLayer(parcels);
-            self.parcels.setRenderer(new SimpleRenderer({
+            parcels.setRenderer(new SimpleRenderer({
                 type: "simple",
                 label: "",
                 description: "",
@@ -163,7 +165,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
                     new SimpleFillSymbol(SimpleFillSymbol.STYLE_NULL,
                     new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
                     new Color([255, 255, 0]), 4), new Color([255, 255, 0, 0.5]));
-            self.parcels.setSelectionSymbol(selectSymbol);
+            parcels.setSelectionSymbol(selectSymbol);
             var durparcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/1", {
                 outFields: ['OWNER', 'PIN_NUM'],
                 mode: FeatureLayer.MODE_ONDEMAND
@@ -190,7 +192,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
             map.on("touchend, click", function (e) {
                 var query = new Query();
                 query.geometry = e.mapPoint;
-                self.parcels.selectFeatures(query, FeatureLayer.SELECTION_ADD, function (results) {
+                parcels.selectFeatures(query, FeatureLayer.SELECTION_ADD, function (results) {
                     console.log(results);
                     if (results.length > 0) {
                         var pin = results[0].attributes.PIN_NUM;
@@ -198,7 +200,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
                             self.pins.push(pin);
                         } else {
                             self.pins.splice(self.pins.indexOf(pin), 1);
-                            self.parcels.selectFeatures(query, FeatureLayer.SELECTION_SUBTRACT);
+                            parcels.selectFeatures(query, FeatureLayer.SELECTION_SUBTRACT);
                         }
                         $scope.$digest();
                     }
