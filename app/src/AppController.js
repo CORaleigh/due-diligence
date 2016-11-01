@@ -4,10 +4,10 @@
  * @param $mdSidenav
  * @constructor
  */
-function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $timeout) {
+function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $timeout, $anchorScroll) {
     'use strict';
     var self = this;
-    var map = null;
+    var map = null, parcels = null, durparcels = null;
     $scope.hideSplash = function () {
         $mdDialog.hide();
     };
@@ -22,6 +22,15 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
     };
     self.pins = [];
     self.data = {};
+    var clearForm = function () {
+        self.data = {};
+        self.pins = [];
+        parcels.clearSelection();
+        durparcels.clearSelection();
+        map.graphics.clear();
+        self.addressText = '';
+        $anchorScroll();
+    };
     self.submitForm = function () {
         self.selectedAddress.geometry.spatialReference = {
             wkid: 4326
@@ -42,8 +51,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
             }
         }).then(function (result) {
             console.log(result);
-            self.data = {};
-            self.pins = [];
+            clearForm();
         });
     };
     self.addressSearch = function (addressText) {
@@ -140,7 +148,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
 
             var tileLyr = new VectorTileLayer("https://www.arcgis.com/sharing/rest/content/items/bf79e422e9454565ae0cbe9553cf6471/resources/styles/root.json");
             map.addLayer(tileLyr);
-            var parcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0", {
+            parcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/0", {
                 outFields: ['OWNER', 'PIN_NUM'],
                 mode: FeatureLayer.MODE_ONDEMAND
             });
@@ -166,7 +174,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
                     new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
                     new Color([255, 255, 0]), 4), new Color([255, 255, 0, 0.5]));
             parcels.setSelectionSymbol(selectSymbol);
-            var durparcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/1", {
+            durparcels = new FeatureLayer("https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer/1", {
                 outFields: ['OWNER', 'PIN_NUM'],
                 mode: FeatureLayer.MODE_ONDEMAND
             });
@@ -227,4 +235,4 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $ti
         });
     };
 }
-export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', '$timeout', AppController];
+export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', '$timeout', '$anchorScroll', AppController];
