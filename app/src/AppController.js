@@ -4,11 +4,30 @@
  * @param $mdSidenav
  * @constructor
  */
-function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
+function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $filter) {
     'use strict';
     var self = this;
     var map = null,
-        view = null;
+        view = null,
+        buildingTypes = [{zone: 'R-1', allowed: 'Detached House'},
+            {zone: 'R-2', allowed: 'Detached House, Attached House *, Civic Building, Open Lot'},
+            {zone: 'R-4', allowed: 'Detached House, Attached House *, Townhouse *, Civic Building, Open Lot'},
+            {zone: 'R-6', allowed: 'Detached House, Attached House, Townhouse *, Apartment *, Civic Building, Open Lot'},
+            {zone: 'R-10', allowed: 'Detached House, Attached House, Townhouse, Apartment, Civic Building, Open Lot'},
+            {zone: 'RX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, Civic Building, Open Lot'},
+            {zone: 'OP-', allowed: 'General Building, Mixed Use Building, Civic Building, Open Lot'},
+            {zone: 'OX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
+            {zone: 'NX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
+            {zone: 'CX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
+            {zone: 'DX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
+            {zone: 'IX-', allowed: 'General Building, Mixed Use Building, Civic Building, Open Lot'},
+            {zone: 'CM', allowed: 'Open Lot'},
+            {zone: 'AP', allowed: 'Detached House, General Building, Open Lot'},
+            {zone: 'IH', allowed: 'General Building, Open Lot'},
+            {zone: 'MH', allowed: 'See Article 4.5. Manufactured Housing (MH)'},
+            {zone: 'CMP', allowed: 'Allowed building types determined on master plan (see Article 4.6. Campus (CMP))'},
+            {zone: 'PD', allowed: 'Allowed building types determined on master plan (see Article 4.7. Planned Development (PD))'}
+        ];
     $scope.hideSplash = function () {
         $mdDialog.hide();
     };
@@ -27,7 +46,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
             wkid: 4326
         };
         $http({
-            url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence_Sessions/FeatureServer/0/addFeatures",
+            url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence/FeatureServer/0/addFeatures",
             method: 'POST',
             data: $httpParamSerializerJQLike({
                 f: 'json',
@@ -50,14 +69,56 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
             });
     };
     self.getZoning = function (queryTask, query) {
-        query.outFields = ['ZONING'];
+        query.outFields = ['ZONING', 'FRONTAGE', 'ZONE_TYPE'];
         query.returnGeometry = false;
         queryTask.url = "http://maps.raleighnc.gov/arcgis/rest/services/Planning/Zoning/MapServer/0";
         queryTask.execute(query).then(function (result) {
             if (result.features.length > 0) {
-                self.data.zoning = result.features[0].attributes.ZONING;
+                self.data.planning1 = result.features[0].attributes.ZONING;
+                if (result.features[0].attributes.CONDITIONAL) {
+                    self.data.planning2 = 'Yes';
+                } else {
+                    self.data.planning2 = 'N/A';
+                }
+                if (result.features[0].attributes.FRONTAGE) {
+                    self.data.planning4 = result.features[0].attributes.FRONTAGE;
+                } else {
+                    self.data.planning4 = 'N/A';
+                }  
+                var buildingType = $filter('filter')(buildingTypes, {zone: result.features[0].attributes.ZONE_TYPE});
+                if (buildingType.length > 0) {
+                    self.data.planning7 = buildingType[0].allowed;
+                }
+                self.data.forestry2 = 1;
+                if (result.features[0].attributes.ZONE_TYPE === "R-1" || result.features[0].attributes.ZONE_TYPE === "R-2") {
+                    self.data.forestry2 = 0;
+                }               
                 $scope.$digest();
             }
+        });
+    };
+    self.getOverlay = function (queryTask, query) {
+        var overlays = [];
+        query.outFields = ['OLAY_DECODE'];
+        query.returnGeometry = false;
+        queryTask.url = "https://maps.raleighnc.gov/arcgis/rest/services/Services/OpenData/MapServer/31";
+        queryTask.execute(query).then(function (result) {
+            if (result.features.length > 0) {
+                result.features.forEach(function (feature) {
+                    overlays.push(feature.attributes.OLAY_DECODE);
+                });
+                self.data.planning3 = overlays.toString();
+                if (self.data.planning3.indexOf("Water Protection") > -1) {
+                    self.data.forestry5 = 0;
+                } else {
+                    self.data.forestry5 = 1;
+                }
+
+            } else {
+                self.data.planning3 = 'N/A';
+            }
+
+            $scope.$digest();
         });
     };
     self.getProperty = function (point) {
@@ -67,15 +128,23 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
             });
             var query = new Query();
             query.returnGeometry = true;
-            query.outFields = ['OWNER', 'PIN_NUM'];
+            query.outFields = ['OWNER', 'PIN_NUM', 'DEED_ACRES'];
             query.geometry = point;
             query.spatialRelationship = 'intersects';
             queryTask.execute(query).then(function (result) {
                 if (result.features.length > 0) {
                     self.data.owner = result.features[0].attributes.OWNER;
-                    self.data.pin1 = result.features[0].attributes.PIN_NUM;
+                    self.data.pin = result.features[0].attributes.PIN_NUM;
+                    if (result.features[0].attributes.DEED_ACRES) {
+                        if (result.features[0].attributes.DEED_ACRES >= 2) {
+                            self.data.forestry1 = 0;
+                        } else {
+                            self.data.forestry1 = 1;
+                        }
+                    }
                     $scope.$digest();
                     self.getZoning(queryTask, query);
+                    self.getOverlay(queryTask, query);
                 }
             });
         });
@@ -147,4 +216,4 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog) {
         });
     };
 }
-export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', AppController];
+export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', '$filter', AppController];

@@ -58,22 +58,54 @@
                                 {{app.data.owner}}
                             </div>
                         </div>
-                        <div ng-show="app.data.pin1">
+                        <div ng-show="app.data.pin">
                             <div class="md-subhead">
                                 PIN
                             </div>
                             <div>
-                                {{app.data.pin1}}
+                                {{app.data.pin}}
                             </div>
                         </div>
-                        <div ng-show="app.data.zoning">
+                        <div ng-show="app.data.planning1">
                             <div class="md-subhead">
                                 Zoning
                             </div>
                             <div>
-                                {{app.data.zoning}}
+                                {{app.data.planning1}}
                             </div>
                         </div>
+                        <div ng-show="app.data.planning2">
+                            <div class="md-subhead">
+                                Conditional
+                            </div>
+                            <div>
+                                {{app.data.planning2}}
+                            </div>
+                        </div>
+                        <div ng-show="app.data.planning3">
+                            <div class="md-subhead">
+                                Overlay Districts
+                            </div>
+                            <div>
+                                {{app.data.planning3}}
+                            </div>
+                        </div>                        
+                        <div ng-show="app.data.planning4">
+                            <div class="md-subhead">
+                                Frontage
+                            </div>
+                            <div>
+                                {{app.data.planning4}}
+                            </div>
+                        </div>
+                        <div ng-show="app.data.planning8">
+                            <div class="md-subhead">
+                                Allowed Building Types
+                            </div>
+                            <div>
+                                {{app.data.planning8}}
+                            </div>
+                        </div>                                                                        
                     </md-card>
                     <md-radio-group ng-model="app.data.participated" layout="row" layout-padding layout-wrap>
                         <span>Has anyone participated or scheduled a Rezoning Pre-Application Conference for this property?</span>
@@ -85,7 +117,7 @@
                         <md-radio-button value="0" class="md-primary">Yes</md-radio-button>
                         <md-radio-button value="1"> No </md-radio-button>
                     </md-radio-group>
-                    <h2>Questions</h2>
+<!--                     <h2>Questions</h2>
                     <md-input-container class="md-block">
                         <label>Description of the proposed work and any special conditions?</label>
                         <textarea ng-model="app.data.description"></textarea>
@@ -105,7 +137,7 @@
                     <md-input-container class="md-block">
                         <label>Question #4</label>
                         <input ng-model="app.data.question4" />
-                    </md-input-container>
+                    </md-input-container> -->
                     <md-button type="submit" class="md-raised md-primary">Submit</md-button>
                 </form>
         </div>
