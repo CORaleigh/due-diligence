@@ -4,7 +4,7 @@
  * @param $mdSidenav
  * @constructor
  */
-function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $filter) {
+function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $filter, $window) {
     'use strict';
     var self = this;
     self.parcels = [];
@@ -100,6 +100,12 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                     }
                 }).then(function (result) {
                     self.showConfirm();
+                    self.data = {};
+                    self.parcels = [];
+                    view.graphics.removeAll();
+                    polys.removeAll();
+                    highlights.removeAll();
+                    $window.scrollTo(0, 0);
                 });
             }
         });
@@ -413,4 +419,4 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
         });
     };
 }
-export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', '$filter', AppController];
+export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', '$filter', '$window', AppController];
