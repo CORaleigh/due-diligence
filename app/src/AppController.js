@@ -43,6 +43,15 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             clickOutsideToClose: true
         });
     };
+    self.showConfirm = function (ev) {
+        $mdDialog.show({
+            controller: AppController,
+            templateUrl: 'templates/confirm.html',
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true
+        });
+    };    
     self.data = {pins: [], address: [], pins: [], planning1: [], planning2: 'N/A', planning3: [], planning4: [], forestry2: 1, forestry5: 1};
     self.submitForm = function () {
         // self.selectedAddress.geometry.spatialReference = {
@@ -90,8 +99,8 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }).then(function (result) {
-
-                })              
+                    self.showConfirm();
+                });
             }
         });
     };

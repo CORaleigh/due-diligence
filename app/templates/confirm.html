@@ -1,0 +1,28 @@
+<md-dialog aria-label="Confirm Dialog">
+  <form ng-cloak>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Due Diligence Application Submitted</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="hideSplash()">
+          <md-icon md-svg-icon="close" aria-label="Close dialog"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+      <div class="md-dialog-content">
+        <p>
+          Your due diligence application has been submitted.
+        </p>
+      </div>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+      <md-button ng-click="hideSplash()">
+        Continue
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>
+
