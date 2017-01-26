@@ -7,27 +7,30 @@
 function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $filter) {
     'use strict';
     var self = this;
+    self.parcels = [];
     var map = null,
         view = null,
+        polys = null,
+        highlights = null,
         buildingTypes = [{zone: 'R-1', allowed: 'Detached House'},
-            {zone: 'R-2', allowed: 'Detached House, Attached House *, Civic Building, Open Lot'},
-            {zone: 'R-4', allowed: 'Detached House, Attached House *, Townhouse *, Civic Building, Open Lot'},
-            {zone: 'R-6', allowed: 'Detached House, Attached House, Townhouse *, Apartment *, Civic Building, Open Lot'},
-            {zone: 'R-10', allowed: 'Detached House, Attached House, Townhouse, Apartment, Civic Building, Open Lot'},
-            {zone: 'RX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, Civic Building, Open Lot'},
-            {zone: 'OP-', allowed: 'General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'OX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'NX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'CX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'DX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'IX-', allowed: 'General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'CM', allowed: 'Open Lot'},
-            {zone: 'AP', allowed: 'Detached House, General Building, Open Lot'},
-            {zone: 'IH', allowed: 'General Building, Open Lot'},
-            {zone: 'MH', allowed: 'See Article 4.5. Manufactured Housing (MH)'},
-            {zone: 'CMP', allowed: 'Allowed building types determined on master plan (see Article 4.6. Campus (CMP))'},
-            {zone: 'PD', allowed: 'Allowed building types determined on master plan (see Article 4.7. Planned Development (PD))'}
-        ];
+                {zone: 'R-2', allowed: 'Detached House, Attached House *, Civic Building, Open Lot'},
+                {zone: 'R-4', allowed: 'Detached House, Attached House *, Townhouse *, Civic Building, Open Lot'},
+                {zone: 'R-6', allowed: 'Detached House, Attached House, Townhouse *, Apartment *, Civic Building, Open Lot'},
+                {zone: 'R-10', allowed: 'Detached House, Attached House, Townhouse, Apartment, Civic Building, Open Lot'},
+                {zone: 'RX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, Civic Building, Open Lot'},
+                {zone: 'OP-', allowed: 'General Building, Mixed Use Building, Civic Building, Open Lot'},
+                {zone: 'OX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
+                {zone: 'NX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
+                {zone: 'CX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
+                {zone: 'DX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
+                {zone: 'IX-', allowed: 'General Building, Mixed Use Building, Civic Building, Open Lot'},
+                {zone: 'CM', allowed: 'Open Lot'},
+                {zone: 'AP', allowed: 'Detached House, General Building, Open Lot'},
+                {zone: 'IH', allowed: 'General Building, Open Lot'},
+                {zone: 'MH', allowed: 'See Article 4.5. Manufactured Housing (MH)'},
+                {zone: 'CMP', allowed: 'Allowed building types determined on master plan (see Article 4.6. Campus (CMP))'},
+                {zone: 'PD', allowed: 'Allowed building types determined on master plan (see Article 4.7. Planned Development (PD))'}
+            ];
     $scope.hideSplash = function () {
         $mdDialog.hide();
     };
@@ -40,11 +43,22 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             clickOutsideToClose: true
         });
     };
-    self.data = {};
+    self.data = {pins: [], address: [], pins: [], planning1: [], planning2: 'N/A', planning3: [], planning4: [], forestry2: 1, forestry5: 1};
     self.submitForm = function () {
-        self.selectedAddress.geometry.spatialReference = {
-            wkid: 4326
-        };
+        // self.selectedAddress.geometry.spatialReference = {
+        //     wkid: 4326
+        // };
+        self.data.pins = self.data.pins.toString();
+        self.data.address = self.data.address.toString();                
+        self.data.planning1 = self.data.planning1.toString();
+        if (self.data.planning3.length === 0) {
+            self.data.planning3 = 'N/A';
+        }
+        if (self.data.planning4.length === 0) {
+            self.data.planning4 = 'N/A';
+        }        
+        self.data.planning3 = self.data.planning3.toString();
+        self.data.planning4 = self.data.planning4.toString();                
         $http({
             url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence/FeatureServer/0/addFeatures",
             method: 'POST',
@@ -52,7 +66,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                 f: 'json',
                 features: JSON.stringify([{
                     attributes: self.data,
-                    geometry: self.selectedAddress.geometry
+                    geometry: polys.graphics.items[0].geometry.centroid//self.selectedAddress.geometry
                 }])
             }),
             headers: {
@@ -60,6 +74,25 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             }
         }).then(function (result) {
             console.log(result);
+            if(result.data.addResults.length > 0) {
+                var oid = result.data.addResults[0].objectId;
+                $http({
+                    url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence_Areas/FeatureServer/0/addFeatures",
+                    method: 'POST',
+                    data: $httpParamSerializerJQLike({
+                        f: 'json',
+                        features: JSON.stringify([{
+                            attributes: {ID: oid},
+                            geometry: polys.graphics.items[0].geometry
+                        }])
+                    }),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).then(function (result) {
+
+                })              
+            }
         });
     };
     self.addressSearch = function (addressText) {
@@ -68,57 +101,63 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                 return result.data.features;
             });
     };
-    self.getZoning = function (queryTask, query) {
+    self.getZoning = function (queryTask, query, parcel) {
         query.outFields = ['ZONING', 'FRONTAGE', 'ZONE_TYPE'];
         query.returnGeometry = false;
         queryTask.url = "http://maps.raleighnc.gov/arcgis/rest/services/Planning/Zoning/MapServer/0";
         queryTask.execute(query).then(function (result) {
             if (result.features.length > 0) {
-                self.data.planning1 = result.features[0].attributes.ZONING;
+                parcel.planning1 = result.features[0].attributes.ZONING;
                 if (result.features[0].attributes.CONDITIONAL) {
-                    self.data.planning2 = 'Yes';
+                    parcel.planning2 = 'Yes';
                 } else {
-                    self.data.planning2 = 'N/A';
+                    parcel.planning2 = 'N/A';
                 }
                 if (result.features[0].attributes.FRONTAGE) {
-                    self.data.planning4 = result.features[0].attributes.FRONTAGE;
+                    parcel.planning4 = result.features[0].attributes.FRONTAGE;
                 } else {
-                    self.data.planning4 = 'N/A';
-                }  
+                    parcel.planning4 = 'N/A';
+                }
                 var buildingType = $filter('filter')(buildingTypes, {zone: result.features[0].attributes.ZONE_TYPE});
                 if (buildingType.length > 0) {
-                    self.data.planning7 = buildingType[0].allowed;
+                    parcel.planning7 = buildingType[0].allowed;
                 }
-                self.data.forestry2 = 1;
+                parcel.forestry2 = 1;
                 if (result.features[0].attributes.ZONE_TYPE === "R-1" || result.features[0].attributes.ZONE_TYPE === "R-2") {
-                    self.data.forestry2 = 0;
-                }               
+                    parcel.forestry2 = 0;
+                }
                 $scope.$digest();
+                self.getOverlay(queryTask, query, parcel);
             }
         });
     };
-    self.getOverlay = function (queryTask, query) {
+    self.getOverlay = function (queryTask, query, parcel) {
         var overlays = [];
         query.outFields = ['OLAY_DECODE'];
         query.returnGeometry = false;
         queryTask.url = "https://maps.raleighnc.gov/arcgis/rest/services/Services/OpenData/MapServer/31";
         queryTask.execute(query).then(function (result) {
+            parcel.planning3Label = 'N/A';
             if (result.features.length > 0) {
+                parcel.planning3 = [];
                 result.features.forEach(function (feature) {
-                    overlays.push(feature.attributes.OLAY_DECODE);
+                    if (parcel.planning3.indexOf(feature.attributes.OLAY_DECODE) === -1) {
+                        parcel.planning3.push(feature.attributes.OLAY_DECODE);
+                    }
                 });
-                self.data.planning3 = overlays.toString();
-                if (self.data.planning3.indexOf("Water Protection") > -1) {
-                    self.data.forestry5 = 0;
+                parcel.planning3Label = parcel.planning3.toString();
+                if (parcel.planning3.toString().indexOf("Water Protection") > -1) {
+                    parcel.forestry5 = 0;
                 } else {
-                    self.data.forestry5 = 1;
+                    parcel.forestry5 = 1;
                 }
 
             } else {
-                self.data.planning3 = 'N/A';
+                
             }
 
             $scope.$digest();
+            aggregateData(parcel);
         });
     };
     self.getProperty = function (point) {
@@ -154,7 +193,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             require(["esri/Graphic", "esri/geometry/Point", "esri/symbols/SimpleMarkerSymbol"], function (Graphic, Point, SimpleMarkerSymbol) {
                 var markerSymbol = new SimpleMarkerSymbol({
                     color: [226, 119, 40],
-                    outline: { // autocasts as new SimpleLineSymbol()
+                    outline: {
                         color: [255, 255, 255],
                         width: 2
                     }
@@ -169,10 +208,11 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                 pointGraphic.symbol = markerSymbol;
                 view.graphics.removeAll();
                 view.graphics.add(pointGraphic);
-                self.getProperty(new Point({
+                selectProperty(new Point({
                     longitude: address.geometry.x,
-                    latitude: address.geometry.y
-                }));
+                    latitude: address.geometry.y,
+                    spatialReference: view.spatialReference
+                }), "https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer");
             });
         }
     };
@@ -186,32 +226,180 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             self.addAddressToMap(address);
         }
     };
+    self.highlightParcel = function (parcel) {
+        require(["esri/Graphic", "esri/symbols/SimpleFillSymbol"], function (Graphic, SimpleFillSymbol) {
+            var graphic = new Graphic({
+                attributes: parcel.attributes,
+                geometry: parcel.geometry,
+                symbol: new SimpleFillSymbol({
+                    color: [255, 0, 0, 0.2],
+                    style: "solid",
+                    outline: {
+                        color: "red",
+                        width: 4
+                    }
+                })
+            });
+            highlights.removeAll();
+            highlights.add(graphic);
+        });
+    };
+    self.unhighlightParcel = function () {
+        highlights.removeAll();
+    };
+    self.removeParcel = function (parcel) {
+        require(["esri/geometry/geometryEngine", "esri/Graphic", "esri/symbols/SimpleFillSymbol"], function (geometryEngine, Graphic, SimpleFillSymbol) {
+            var graphic = new Graphic({
+                attributes: parcel.attributes,
+                geometry: parcel.geometry,
+                symbol: new SimpleFillSymbol({
+                    color: [255, 255, 0, 0.2],
+                    style: "solid",
+                    outline: {
+                        color: "yellow",
+                        width: 4
+                    }
+                })
+            });
+            var geom = geometryEngine.symmetricDifference(parcel.geometry, polys.graphics.items[0].geometry);
+            self.parcels.forEach(function (p, i) {
+                if (p.pin === parcel.pin) {
+                    self.parcels.splice(i, 1);
+                }
+            });
+            polys.removeAll();
+            graphic.geometry = geom;
+            polys.add(graphic);
+        });
+
+    };
+
+    var selectProperty = function (point, url) {
+        require(["esri/tasks/QueryTask", "esri/tasks/support/Query", "esri/Graphic", "esri/symbols/SimpleFillSymbol", "esri/geometry/geometryEngine"], function (QueryTask, Query, Graphic, SimpleFillSymbol, geometryEngine) {
+            var query = new Query();
+            var queryTask = new QueryTask(url + '/0');
+            query.outFields = ['*'];
+            query.returnGeometry = true;
+            query.geometry = point;
+            queryTask.execute(query).then(function (results) {
+                if (results.features.length > 0) {
+
+                    var f = results.features[0];
+                    var graphic = new Graphic({
+                        attributes: f.attributes,
+                        geometry: f.geometry,
+                        symbol: new SimpleFillSymbol({
+                            color: [255, 255, 0, 0.2],
+                            style: "solid",
+                            outline: {
+                                color: "yellow",
+                                width: 4
+                            }
+                        })
+                    });
+                    var parcel = {owner: f.attributes.OWNER, pin: f.attributes.PIN_NUM, geometry: f.geometry};
+                    var checkParcelExists = null;
+                    if (polys.graphics.items.length > 0) {
+                        var geom = null;
+                        if (geometryEngine.intersects(polys.graphics.items[0].geometry, f.geometry.centroid)) {
+                            geom = geometryEngine.symmetricDifference(f.geometry, polys.graphics.items[0].geometry);
+                            self.parcels.forEach(function (parcel, i) {
+                                if (parcel.pin === f.attributes.PIN_NUM) {
+                                    self.parcels.splice(i, 1);
+                                }
+                            });
+                        } else {
+                            geom = geometryEngine.union([polys.graphics.items[0].geometry, f.geometry]);
+
+                            checkParcelExists = $filter('filter')(self.parcels, {pin: f.attributes.PIN_NUM});
+                            if (checkParcelExists.length < 1) {
+                                self.parcels.push(parcel);
+                                self.getZoning(queryTask, query, parcel);
+                                
+                            }
+
+                        }
+                        polys.removeAll();
+                        graphic.geometry = geom;
+                        polys.add(graphic);
+                        console.log(geom);
+                    } else {
+                        polys.add(graphic);
+
+                        checkParcelExists = $filter('filter')(self.parcels, {pin: f.attributes.PIN_NUM});
+                        if (checkParcelExists.length < 1) {
+                            self.parcels.push(parcel);
+                            self.getZoning(queryTask, query, parcel);
+                        }
+                    }
+                    $scope.$digest();
+                }
+            });
+        });
+    };
+
+    var aggregateData = function (parcel) {
+        if (self.data.pins.indexOf(parcel.pin) === -1) {
+            self.data.pins.push(parcel.pin);
+        }
+        if (self.data.address.indexOf(parcel.address) === -1) {
+            self.data.address.push(parcel.address);
+        }                 
+        if (self.data.planning1.indexOf(parcel.planning1) === -1) {
+            self.data.planning1.push(parcel.planning1);
+        }
+        if (parcel.planning2 === 'Yes') {
+            self.data.planning2 = 'Yes';
+        }
+        if (parcel.planning3) {
+            parcel.planning3.forEach(function (item) {
+                if (self.data.planning3.indexOf(item) === -1) {
+                    self.data.planning3.push(item);
+                }
+            });
+        }
+        if (self.data.planning4.indexOf(parcel.planning4) === -1 && parcel.planning4 != 'N/A') {
+            self.data.planning4.push(parcel.planning4);
+        }
+        if (parcel.forestry2 === 0) {
+            self.data.forestry2 = 0;
+        }
+        if (parcel.forestry5 === 0) {
+            self.data.forestry5 = 0;
+        }        
+        console.log(self.data);
+
+    };
     self.createMap = function () {
         require([
             "esri/Map",
             "esri/views/MapView",
-            "esri/layers/VectorTileLayer",
+            "esri/layers/MapImageLayer",
+            "esri/layers/GraphicsLayer",
             "dojo/domReady!"
-        ], function (Map, MapView, VectorTileLayer) {
-            console.log('load');
+        ], function (Map, MapView, MapImageLayer, GraphicsLayer) {
             if (!map) {
-                // Create a Map
-                map = new Map();
-                // Make map view and bind it to the map
+                map = new Map({basemap: "streets-navigation-vector"});
                 view = new MapView({
                     container: "viewDiv",
                     map: map,
                     center: [-78.65, 35.8],
-                    zoom: 10
+                    zoom: 15
+
                 });
-                var tileLyr = new VectorTileLayer({
-                    url: "https://www.arcgis.com/sharing/rest/content/items/bf79e422e9454565ae0cbe9553cf6471/resources/styles/root.json"
-                });
-                map.add(tileLyr);
-                var parcels = new VectorTileLayer({
-                    url: "https://www.arcgis.com/sharing/rest/content/items/40654681938f4836b3b9bff62c2d3e40/resources/styles/root.json"
+                var parcels = new MapImageLayer({
+                    url: "https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer"
                 });
                 map.add(parcels);
+                polys = new GraphicsLayer();
+                map.add(polys);
+                highlights = new GraphicsLayer();
+                map.add(highlights);
+                view.on('click', function (point) {
+                    if (view.zoom >= 15) {
+                        selectProperty(point.mapPoint, "https://maps.raleighnc.gov/arcgis/rest/services/Parcels/MapServer");
+                    }
+                });
             }
         });
     };
