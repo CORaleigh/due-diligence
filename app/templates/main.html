@@ -54,6 +54,12 @@
                       <div id="viewDiv"></div>                    
                     </div>
                     <md-card>
+                        <md-card-title>
+                          <md-card-title-text>
+                            <span class="md-headline">Selected Properties</span>
+                            <span class="md-subhead">Enter address in the input box above or single click a property on the map to select.  To remove from list either click on selected property on map or click the delete button.</span>
+                          </md-card-title-text>
+                        </md-card-title>                    
                         <md-list flex>
                             <md-list-item ng-repeat="parcel in app.parcels" layout-padding ng-mouseenter="app.highlightParcel(parcel)" ng-mouseleave="app.unhighlightParcel()">
                                 <md-button class="md-fab md-mini" ng-click="app.removeParcel(parcel)"><md-icon md-svg-src="assets/svg/delete-white.svg"></md-icon>
