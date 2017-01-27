@@ -53,6 +53,15 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             clickOutsideToClose: true
         });
     };
+    self.showOutside = function (ev) {
+        $mdDialog.show({
+            controller: AppController,
+            templateUrl: 'templates/outside.html',
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true
+        });
+    };    
     self.data = {pins: [], address: [], planning1: [], planning2: 'N/A', planning3: [], planning4: [], forestry2: 1, forestry5: 1};
     self.submitForm = function () {
         // self.selectedAddress.geometry.spatialReference = {
@@ -144,6 +153,11 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                 }
                 $scope.$digest();
                 self.getOverlay(queryTask, query, parcel);
+            } else {
+                self.parcels.splice(self.parcels.length - 1, 1);
+                polys.remove(polys.graphics.items[polys.graphics.items.length - 1]);
+                self.showOutside();
+                $scope.$digest();
             }
         });
     };
@@ -178,13 +192,13 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             });
             var query = new Query();
             query.returnGeometry = true;
-            query.outFields = ['OWNER', 'PIN_NUM', 'DEED_ACRES'];
+            query.outFields = ['OWNER', 'PIN_NUM', 'DEED_ACRES', 'SITE_ADDRESS'];
             query.geometry = point;
             query.spatialRelationship = 'intersects';
             queryTask.execute(query).then(function (result) {
                 if (result.features.length > 0) {
-                    self.data.owner = result.features[0].attributes.OWNER;
-                    self.data.pin = result.features[0].attributes.PIN_NUM;
+                    //self.data.owner = result.features[0].attributes.OWNER;
+                    //self.data.pin = result.features[0].attributes.PIN_NUM;
                     if (result.features[0].attributes.DEED_ACRES) {
                         if (result.features[0].attributes.DEED_ACRES >= 2) {
                             self.data.forestry1 = 0;
@@ -233,7 +247,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                 center: [address.geometry.x, address.geometry.y],
                 zoom: 17
             });
-            self.data.address = self.selectedAddress.attributes.ADDRESS;
+            //self.data.address = self.selectedAddress.attributes.ADDRESS;
             self.addAddressToMap(address);
         }
     };
@@ -280,11 +294,13 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             });
             polys.removeAll();
             graphic.geometry = geom;
+            self.selectedAddress = null;
             polys.add(graphic);
         });
     };
     self.selectProperty = function (point, url) {
         require(["esri/tasks/QueryTask", "esri/tasks/support/Query", "esri/Graphic", "esri/symbols/SimpleFillSymbol", "esri/geometry/geometryEngine"], function (QueryTask, Query, Graphic, SimpleFillSymbol, geometryEngine) {
+            self.selectedAddress = null;
             var query = new Query();
             var queryTask = new QueryTask(url + '/0');
             query.outFields = ['*'];
@@ -305,7 +321,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                             }
                         })
                     });
-                    var parcel = {owner: f.attributes.OWNER, pin: f.attributes.PIN_NUM, geometry: f.geometry};
+                    var parcel = {address: f.attributes.SITE_ADDRESS, pin: f.attributes.PIN_NUM, geometry: f.geometry};
                     var checkParcelExists = null;
                     if (polys.graphics.items.length > 0) {
                         var geom = null;

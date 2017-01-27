@@ -1,0 +1,28 @@
+<md-dialog aria-label="Confirm Dialog">
+  <form ng-cloak>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Property Not In Raleigh</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="hideSplash()">
+          <md-icon md-svg-icon="close" aria-label="Close dialog"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+      <div class="md-dialog-content">
+        <p>
+          The property you attempted to select is outside of Raleigh's jurisdiction and cannot be included in this submittal.
+        </p>
+      </div>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+      <md-button ng-click="hideSplash()">
+        Continue
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>
+
