@@ -325,7 +325,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                             }
                         })
                     });
-                    var parcel = {address: f.attributes.SITE_ADDRESS, pin: f.attributes.PIN_NUM, geometry: f.geometry};
+                    var parcel = {address: f.attributes.SITE_ADDRESS, pin: f.attributes.PIN_NUM, geometry: f.geometry, owner: f.attributes.OWNER};
                     var checkParcelExists = null;
                     if (polys.graphics.items.length > 0) {
                         var geom = null;
