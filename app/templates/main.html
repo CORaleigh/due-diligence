@@ -62,7 +62,7 @@
                         </md-card-title>                    
                         <md-list flex>
                             <md-list-item ng-repeat="parcel in app.parcels" layout-padding ng-mouseenter="app.highlightParcel(parcel)" ng-mouseleave="app.unhighlightParcel()">
-                                <md-button class="md-fab md-mini" ng-click="app.removeParcel(parcel)"><md-icon md-svg-src="assets/svg/delete-white.svg"></md-icon>
+                                <md-button aria-label="Remove Parcel" class="md-fab md-mini" ng-click="app.removeParcel(parcel)"><md-icon md-svg-src="assets/svg/delete-white.svg"></md-icon>
                                 </md-button>                 
                                <div ng-show="parcel.pin">
                                     <div class="md-subhead">
@@ -72,6 +72,14 @@
                                         {{parcel.pin}}
                                     </div>
                                 </div>
+                               <div ng-show="parcel.address">
+                                    <div class="md-subhead">
+                                        Address
+                                    </div>
+                                    <div>
+                                        {{parcel.address}}
+                                    </div>
+                                </div>                                
                                 <div ng-show="parcel.planning1">
                                     <div class="md-subhead">
                                         Zoning
