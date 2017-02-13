@@ -11,12 +11,12 @@
                     <div layout="row">
                         <md-input-container class="md-block">
                             <label>Phone</label>
-                            <input ng-pattern="^\(?([0-9]{3})\)?[-.●]?([0-9]{3})[-.●]?([0-9]{4})$" ng-required="true" ng-model="app.data.phone" placeholder="XXX-XXX-XXXX" />
+                            <input ng-pattern="/^\(?(\d{3})\)?[ .-]?(\d{3})[ .-]?(\d{4})$/" ng-required="true" ng-model="app.data.phone" placeholder="XXX-XXX-XXXX" />
                         </md-input-container>
-                        <md-input-container class="md-block">
+<!--                         <md-input-container class="md-block">
                             <label>Mobile</label>
                             <input ng-pattern="^\(?([0-9]{3})\)?[-.●]?([0-9]{3})[-.●]?([0-9]{4})$" ng-required="true" ng-model="app.data.mobile" placeholder="XXX-XXX-XXXX" />
-                        </md-input-container>
+                        </md-input-container> -->
                         <md-input-container class="md-block">
                             <label>Email</label>
                             <input type="email" ng-required="true" ng-model="app.data.email" placeholder="user@domain.com" />
