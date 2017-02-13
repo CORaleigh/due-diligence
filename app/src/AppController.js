@@ -35,6 +35,10 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
     $scope.hideSplash = function () {
         $mdDialog.hide();
     };
+    $scope.hideConfirm = function () {
+        $mdDialog.hide();
+        $window.location.reload();
+    };
     self.showSplash = function (ev) {
         $mdDialog.show({
             controller: AppController,
@@ -110,12 +114,12 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                     }
                 }).then(function () {
                     self.showConfirm();
-                    self.data = {};
-                    self.parcels = [];
-                    view.graphics.removeAll();
-                    polys.removeAll();
-                    highlights.removeAll();
-                    $window.scrollTo(0, 0);
+                    // self.data = {};
+                    // self.parcels = [];
+                    // view.graphics.removeAll();
+                    // polys.removeAll();
+                    // highlights.removeAll();
+                    // $window.scrollTo(0, 0);
                 });
             }
         });
