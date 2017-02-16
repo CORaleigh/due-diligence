@@ -82,6 +82,13 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
         }
         self.data.planning3 = self.data.planning3.toString();
         self.data.planning4 = self.data.planning4.toString();
+        self.data.Status = 0;
+        self.data.planningStatus = 0;
+        self.data.transStatus = 0;
+        self.data.transFrontages = 1;
+        self.data.stormStatus = 0;
+        self.data.utilitiesStatus = 0;
+        self.data.forestryStatus = 0;
         $http({
             url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence/FeatureServer/0/addFeatures",
             method: 'POST',
@@ -105,7 +112,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                     data: $httpParamSerializerJQLike({
                         f: 'json',
                         features: JSON.stringify([{
-                            attributes: {ID: oid},
+                            attributes: {ID: oid, Status: 0, planningStatus: 0, transStatus:0, utilitiesStatus: 0, stormStatus: 0, forestryStatus: 0, transFrontages: 1},
                             geometry: polys.graphics.items[0].geometry
                         }])
                     }),
