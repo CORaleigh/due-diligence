@@ -13,24 +13,24 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
         polys = null,
         highlights = null,
         buildingTypes = [
-            {zone: 'R-1', allowed: 'Detached House'},
-            {zone: 'R-2', allowed: 'Detached House, Attached House *, Civic Building, Open Lot'},
-            {zone: 'R-4', allowed: 'Detached House, Attached House *, Townhouse *, Civic Building, Open Lot'},
-            {zone: 'R-6', allowed: 'Detached House, Attached House, Townhouse *, Apartment *, Civic Building, Open Lot'},
-            {zone: 'R-10', allowed: 'Detached House, Attached House, Townhouse, Apartment, Civic Building, Open Lot'},
-            {zone: 'RX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, Civic Building, Open Lot'},
-            {zone: 'OP-', allowed: 'General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'OX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'NX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'CX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'DX-', allowed: 'Detached House, Attached House, Townhouse, Apartment, General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'IX-', allowed: 'General Building, Mixed Use Building, Civic Building, Open Lot'},
-            {zone: 'CM', allowed: 'Open Lot'},
-            {zone: 'AP', allowed: 'Detached House, General Building, Open Lot'},
-            {zone: 'IH', allowed: 'General Building, Open Lot'},
-            {zone: 'MH', allowed: 'See Article 4.5. Manufactured Housing (MH)'},
-            {zone: 'CMP', allowed: 'Allowed building types determined on master plan (see Article 4.6. Campus (CMP))'},
-            {zone: 'PD', allowed: 'Allowed building types determined on master plan (see Article 4.7. Planned Development (PD))'}
+            {zone: 'R-1', allowed: ['Detached House']},
+            {zone: 'R-2', allowed: ['Detached House', 'Attached House *', 'Civic Building', 'Open Lot']},
+            {zone: 'R-4', allowed: ['Detached House', 'Attached House *', 'Townhouse *', 'Civic Building', 'Open Lot']},
+            {zone: 'R-6', allowed: ['Detached House', 'Attached House', 'Townhouse *', 'Apartment *', 'Civic Building', 'Open Lot']},
+            {zone: 'R-10', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'Civic Building', 'Open Lot']},
+            {zone: 'RX-', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'Civic Building', 'Open Lot']},
+            {zone: 'OP-', allowed: ['General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
+            {zone: 'OX-', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
+            {zone: 'NX-', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
+            {zone: 'CX-', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
+            {zone: 'DX-', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
+            {zone: 'IX-', allowed: ['General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
+            {zone: 'CM', allowed: ['Open Lot']},
+            {zone: 'AP', allowed: ['Detached House', 'General Building', 'Open Lot']},
+            {zone: 'IH', allowed: ['General Building', 'Open Lot']},
+            {zone: 'MH', allowed: ['See Article 4.5. Manufactured Housing (MH)']},
+            {zone: 'CMP', allowed: ['Allowed building types determined on master plan (see Article 4.6. Campus (CMP))']},
+            {zone: 'PD', allowed: ['Allowed building types determined on master plan (see Article 4.7. Planned Development (PD)']}
         ];
     $scope.hideSplash = function () {
         $mdDialog.hide();
@@ -82,6 +82,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
         }
         self.data.planning3 = self.data.planning3.toString();
         self.data.planning4 = self.data.planning4.toString();
+        self.data.planning7 = self.data.planning7.toString();
         self.data.Status = 0;
         self.data.planningStatus = 0;
         self.data.transStatus = 0;
@@ -89,6 +90,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
         self.data.stormStatus = 0;
         self.data.utilitiesStatus = 0;
         self.data.forestryStatus = 0;
+        self.data.emailSent = 1;
         $http({
             url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence/FeatureServer/0/addFeatures",
             method: 'POST',
@@ -307,6 +309,8 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             graphic.geometry = geom;
             self.selectedAddress = null;
             polys.add(graphic);
+            self.area = geometryEngine.planarArea(geom, "acres");
+            self.aggregateData(parcel);
         });
     };
     self.selectProperty = function (point, url) {
@@ -343,6 +347,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                                     self.parcels.splice(i, 1);
                                 }
                             });
+                            self.aggregateData(parcel);
                         } else {
                             geom = geometryEngine.union([polys.graphics.items[0].geometry, f.geometry]);
                             checkParcelExists = $filter('filter')(self.parcels, {pin: f.attributes.PIN_NUM});
@@ -354,7 +359,9 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                         polys.removeAll();
                         graphic.geometry = geom;
                         polys.add(graphic);
-                        console.log(geom);
+                        self.area = geometryEngine.planarArea(geom, "acres");
+                        
+
                     } else {
                         polys.add(graphic);
                         checkParcelExists = $filter('filter')(self.parcels, {pin: f.attributes.PIN_NUM});
@@ -369,34 +376,62 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
         });
     };
     self.aggregateData = function (parcel) {
-        if (self.data.pins.indexOf(parcel.pin) === -1) {
-            self.data.pins.push(parcel.pin);
-        }
-        if (self.data.address.indexOf(parcel.address) === -1) {
-            self.data.address.push(parcel.address);
-        }
-        if (self.data.planning1.indexOf(parcel.planning1) === -1) {
-            self.data.planning1.push(parcel.planning1);
-        }
-        if (parcel.planning2 === 'Yes') {
-            self.data.planning2 = 'Yes';
-        }
-        if (parcel.planning3) {
-            parcel.planning3.forEach(function (item) {
-                if (self.data.planning3.indexOf(item) === -1) {
-                    self.data.planning3.push(item);
+        self.data.pins = [];
+        self.data.address = [];
+        self.data.planning1 = [];
+        self.data.planning2 = 'No';
+        self.data.planning3 = [];
+        self.data.planning4 = [];
+        self.data.forestry1 = 1;
+        self.data.forestry2 = 1;
+        self.data.forestry5 = 1;
+        self.data.planning7 = [];
+        self.parcels.forEach(function (parcel) {
+            if (self.data.planning7.length === 0) {
+                self.data.planning7 = parcel.planning7;
+            } else {
+                parcel.planning7.forEach(function (type) {
+                    if (self.data.planning7.indexOf(type) === -1) {
+                        self.data.planning7.push(type);
+                    }
+                });
+            }
+
+            if (self.data.pins.indexOf(parcel.pin) === -1) {
+                self.data.pins.push(parcel.pin);
+            }
+            if (self.data.address.indexOf(parcel.address) === -1) {
+                self.data.address.push(parcel.address);
+            }
+            if (self.data.planning1.indexOf(parcel.planning1) === -1) {
+                self.data.planning1.push(parcel.planning1);
+            }
+            if (parcel.planning2 === 'Yes') {
+                self.data.planning2 = 'Yes';
+            }
+            if (parcel.planning3) {
+                parcel.planning3.forEach(function (item) {
+                    if (self.data.planning3.indexOf(item) === -1) {
+                        self.data.planning3.push(item);
+                    }
+                });
+            }
+            if (self.data.planning4.indexOf(parcel.planning4) === -1 && parcel.planning4 !== 'N/A') {
+                self.data.planning4.push(parcel.planning4);
+            }
+            if (self.area >= 2) {
+                self.data.forestry1 = 0;
+                if (parcel.forestry2 === 0) {
+                    self.data.forestry2 = 0;
                 }
-            });
-        }
-        if (self.data.planning4.indexOf(parcel.planning4) === -1 && parcel.planning4 !== 'N/A') {
-            self.data.planning4.push(parcel.planning4);
-        }
-        if (parcel.forestry2 === 0) {
-            self.data.forestry2 = 0;
-        }
-        if (parcel.forestry5 === 0) {
-            self.data.forestry5 = 0;
-        }
+            }
+            if (parcel.forestry5 === 0) {
+                self.data.forestry5 = 0;
+            }
+        });
+
+
+
     };
     self.createMap = function () {
         require([
