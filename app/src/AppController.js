@@ -65,7 +65,16 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             targetEvent: ev,
             clickOutsideToClose: true
         });
-    };    
+    };
+    self.showNonContinguous = function (ev) {
+      $mdDialog.show({
+          controller: AppController,
+          templateUrl: 'templates/contiguous.html',
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          clickOutsideToClose: true
+      });
+    };
     self.data = {pins: [], address: [], planning1: [], planning2: 'N/A', planning3: [], planning4: [], forestry2: 1, forestry5: 1};
     self.submitForm = function () {
         // self.selectedAddress.geometry.spatialReference = {
@@ -340,28 +349,31 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                     var checkParcelExists = null;
                     if (polys.graphics.items.length > 0) {
                         var geom = null;
-                        if (geometryEngine.intersects(polys.graphics.items[0].geometry, f.geometry.centroid)) {
-                            geom = geometryEngine.symmetricDifference(f.geometry, polys.graphics.items[0].geometry);
-                            self.parcels.forEach(function (parcel, i) {
-                                if (parcel.pin === f.attributes.PIN_NUM) {
-                                    self.parcels.splice(i, 1);
-                                }
-                            });
-                            self.aggregateData(parcel);
+                        var distance = geometryEngine.distance(f.geometry, polys.graphics.items[0].geometry, 'feet');
+                        if (distance < 100) {
+                          if (geometryEngine.intersects(polys.graphics.items[0].geometry, f.geometry.centroid)) {
+                              geom = geometryEngine.symmetricDifference(f.geometry, polys.graphics.items[0].geometry);
+                              self.parcels.forEach(function (parcel, i) {
+                                  if (parcel.pin === f.attributes.PIN_NUM) {
+                                      self.parcels.splice(i, 1);
+                                  }
+                              });
+                              self.aggregateData(parcel);
+                          } else {
+                              geom = geometryEngine.union([polys.graphics.items[0].geometry, f.geometry]);
+                              checkParcelExists = $filter('filter')(self.parcels, {pin: f.attributes.PIN_NUM});
+                              if (checkParcelExists.length < 1) {
+                                  self.parcels.push(parcel);
+                                  self.getZoning(queryTask, query, parcel);
+                              }
+                          }
+                          polys.removeAll();
+                          graphic.geometry = geom;
+                          polys.add(graphic);
+                          self.area = geometryEngine.planarArea(geom, "acres");
                         } else {
-                            geom = geometryEngine.union([polys.graphics.items[0].geometry, f.geometry]);
-                            checkParcelExists = $filter('filter')(self.parcels, {pin: f.attributes.PIN_NUM});
-                            if (checkParcelExists.length < 1) {
-                                self.parcels.push(parcel);
-                                self.getZoning(queryTask, query, parcel);
-                            }
+                          self.showNonContinguous();
                         }
-                        polys.removeAll();
-                        graphic.geometry = geom;
-                        polys.add(graphic);
-                        self.area = geometryEngine.planarArea(geom, "acres");
-                        
-
                     } else {
                         polys.add(graphic);
                         checkParcelExists = $filter('filter')(self.parcels, {pin: f.attributes.PIN_NUM});
