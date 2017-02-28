@@ -315,10 +315,14 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                 }
             });
             polys.removeAll();
-            graphic.geometry = geom;
             self.selectedAddress = null;
-            polys.add(graphic);
-            self.area = geometryEngine.planarArea(geom, "acres");
+
+            if (geom) {
+              graphic.geometry = geom;
+              polys.add(graphic);
+              self.area = geometryEngine.planarArea(geom, "acres");
+            }
+            self.unhighlightParcel();
             self.aggregateData(parcel);
         });
     };
@@ -368,9 +372,11 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                               }
                           }
                           polys.removeAll();
-                          graphic.geometry = geom;
-                          polys.add(graphic);
-                          self.area = geometryEngine.planarArea(geom, "acres");
+                          if (geom) {
+                            graphic.geometry = geom;
+                            polys.add(graphic);
+                            self.area = geometryEngine.planarArea(geom, "acres");
+                          }
                         } else {
                           self.showNonContinguous();
                         }
