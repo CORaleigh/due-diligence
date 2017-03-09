@@ -39,6 +39,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
         $mdDialog.hide();
         $window.location.reload();
     };
+
     self.showSplash = function (ev) {
         $mdDialog.show({
             controller: AppController,
@@ -91,11 +92,12 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
         }
         self.data.planning3 = self.data.planning3.toString();
         self.data.planning4 = self.data.planning4.toString();
-        self.data.planning7 = self.data.planning7.toString();
+        //self.data.planning7 = self.data.planning7.toString();
         self.data.Status = 0;
         self.data.planningStatus = 0;
         self.data.transStatus = 0;
         self.data.transFrontages = 1;
+        self.data.planning7a = 1;
         self.data.stormStatus = 0;
         self.data.utilitiesStatus = 0;
         self.data.forestryStatus = 0;
@@ -165,10 +167,10 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                 } else {
                     parcel.planning4 = 'N/A';
                 }
-                var buildingType = $filter('filter')(buildingTypes, {zone: result.features[0].attributes.ZONE_TYPE});
-                if (buildingType.length > 0) {
-                    parcel.planning7 = buildingType[0].allowed;
-                }
+                // var buildingType = $filter('filter')(buildingTypes, {zone: result.features[0].attributes.ZONE_TYPE});
+                // if (buildingType.length > 0) {
+                //     parcel.planning7 = buildingType[0].allowed;
+                // }
                 parcel.forestry2 = 1;
                 if (result.features[0].attributes.ZONE_TYPE === "R-1" || result.features[0].attributes.ZONE_TYPE === "R-2") {
                     parcel.forestry2 = 0;
@@ -403,17 +405,17 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
         self.data.forestry1 = 1;
         self.data.forestry2 = 1;
         self.data.forestry5 = 1;
-        self.data.planning7 = [];
+        //self.data.planning7 = [];
         self.parcels.forEach(function (parcel) {
-            if (self.data.planning7.length === 0) {
-                self.data.planning7 = parcel.planning7;
-            } else {
-                parcel.planning7.forEach(function (type) {
-                    if (self.data.planning7.indexOf(type) === -1) {
-                        self.data.planning7.push(type);
-                    }
-                });
-            }
+            // if (self.data.planning7.length === 0) {
+            //     self.data.planning7 = parcel.planning7;
+            // } else {
+            //     parcel.planning7.forEach(function (type) {
+            //         if (self.data.planning7.indexOf(type) === -1) {
+            //             self.data.planning7.push(type);
+            //         }
+            //     });
+            // }
 
             if (self.data.pins.indexOf(parcel.pin) === -1) {
                 self.data.pins.push(parcel.pin);
