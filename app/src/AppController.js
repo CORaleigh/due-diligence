@@ -167,6 +167,10 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                 } else {
                     parcel.planning4 = 'N/A';
                 }
+
+                if (result.features[0].attributes.HEIGHT) {
+                    parcel.planning5 = result.features[0].attributes.HEIGHT;
+                }
                 // var buildingType = $filter('filter')(buildingTypes, {zone: result.features[0].attributes.ZONE_TYPE});
                 // if (buildingType.length > 0) {
                 //     parcel.planning7 = buildingType[0].allowed;
