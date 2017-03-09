@@ -169,7 +169,13 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                 }
 
                 if (result.features[0].attributes.HEIGHT) {
+                  if (parcel.planning5) {
+                    if (result.features[0].attributes.HEIGHT > parcel.planning5) {
+                      parcel.planning5 = result.features[0].attributes.HEIGHT;
+                    }
+                  } else {
                     parcel.planning5 = result.features[0].attributes.HEIGHT;
+                  }
                 }
                 // var buildingType = $filter('filter')(buildingTypes, {zone: result.features[0].attributes.ZONE_TYPE});
                 // if (buildingType.length > 0) {
