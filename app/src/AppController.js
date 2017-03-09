@@ -151,7 +151,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             });
     };
     self.getZoning = function (queryTask, query, parcel) {
-        query.outFields = ['ZONING', 'FRONTAGE', 'ZONE_TYPE'];
+        query.outFields = ['ZONING', 'FRONTAGE', 'ZONE_TYPE', 'HEIGHT'];
         query.returnGeometry = false;
         queryTask.url = "http://maps.raleighnc.gov/arcgis/rest/services/Planning/Zoning/MapServer/0";
         queryTask.execute(query).then(function (result) {
