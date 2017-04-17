@@ -46,7 +46,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             templateUrl: 'templates/splash.html',
             parent: angular.element(document.body),
             targetEvent: ev,
-            clickOutsideToClose: true
+            clickOutsideToClose: false
         });
     };
     self.showConfirm = function (ev) {
@@ -55,7 +55,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             templateUrl: 'templates/confirm.html',
             parent: angular.element(document.body),
             targetEvent: ev,
-            clickOutsideToClose: true
+            clickOutsideToClose: false
         });
     };
     self.showOutside = function (ev) {
