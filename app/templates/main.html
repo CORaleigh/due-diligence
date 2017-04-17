@@ -42,8 +42,8 @@
                         <input ng-required="true" ng-model="app.data.project" placeholder="What is the name of your project?" />
                     </md-input-container>
                     <md-input-container class="md-block">
-                        <label>Comments</label>
-                        <textarea ng-required="true" ng-model="app.data.comments" placeholder="Enter additional information" ng-maxlength="1000"></textarea>
+                        <label>Project Description</label>
+                        <textarea ng-required="true" ng-model="app.data.comments" placeholder="Please provide a brief description of the project." ng-maxlength="1000"></textarea>
                     </md-input-container>                       
                     <h2>Property Information</h2>
                     <md-autocomplete ng-disabled="false" md-no-cache="false" md-selected-item="app.selectedAddress" md-search-text="app.addressText" md-selected-item-change="app.addressSelected(address)" md-items="address in app.addressSearch(app.addressText)" md-item-text="address.attributes.ADDRESS" md-min-length="4" md-autoselect="true" placeholder="Enter and select the property address">
@@ -57,7 +57,7 @@
                         <md-card-title>
                           <md-card-title-text>
                             <span class="md-headline">Selected Properties</span>
-                            <span class="md-subhead">Enter address in the input box above or single click a property on the map to select.  To remove from list either click on selected property on map or click the delete button.</span>
+                            <span class="md-subhead">Enter address in the input box above or single click a property on the map to select.  To remove from list either click on selected property on map or click the delete button.  Only contiguous properties will be allowed for each submittal, and multiple parcels will be reviewed as a combined assemblage.</span>
                           </md-card-title-text>
                         </md-card-title>                    
                         <md-list>
