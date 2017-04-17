@@ -186,6 +186,9 @@
                         <label>Question #4</label>
                         <input ng-model="app.data.question4" />
                     </md-input-container> -->
+                    <p>
+                        <em>A limited number of DDS submittals per week are accepted, and are reviewed on a first-come, first-serve basis.  To maintain a reasonable queue of submissions, we ask that applicants refrain from submitting more than 2 DDS applications per week.  By clicking “SUBMIT” you are stating that the information listed above is accurate and you accept the terms of this service.</em>
+                    </p>
                     <md-button ng-disabled="app.data.reviewed != 0 || ddForm.$invalid" type="submit" class="md-raised md-primary">Submit</md-button>
                 </form>
         </div>
