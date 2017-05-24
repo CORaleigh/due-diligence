@@ -86,20 +86,10 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
     self.data = {pins: [], address: [], planning1: [], planning2: 'N/A', planning3: [], planning4: [], forestry2: 1, forestry5: 1};
 
  function getDueDate (dayOfWeek, weeks) {
-    // if we haven't yet passed the day of the week that I need:
- //   if (moment().isoWeekday() <= dayOfWeek) { 
-    // then just give me this week's instance of that day
- //   return moment().isoWeekday(dayOfWeek);
- //   } else {
-    // otherwise, give me next week's instance of that day
     return moment().add(weeks, 'weeks').isoWeekday(dayOfWeek).format('dddd, MMMM Do YYYY');
- //   }    
-}   
+ }   
     
     self.submitForm = function () {
-        // self.selectedAddress.geometry.spatialReference = {
-        //     wkid: 4326
-        // };
         self.data.pins = self.data.pins.toString();
         self.data.address = self.data.address.toString();
         self.data.planning1 = self.data.planning1.toString();
@@ -111,7 +101,6 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
         }
         self.data.planning3 = self.data.planning3.toString();
         self.data.planning4 = self.data.planning4.toString();
-        //self.data.planning7 = self.data.planning7.toString();
         self.data.Status = 0;
         self.data.planningStatus = 0;
         self.data.transStatus = 0;
@@ -128,7 +117,7 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
                 f: 'json',
                 features: JSON.stringify([{
                     attributes: self.data,
-                    geometry: polys.graphics.items[0].geometry.centroid//self.selectedAddress.geometry
+                    geometry: polys.graphics.items[0].geometry.centroid
                 }])
             }),
             headers: {
@@ -158,13 +147,6 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
                         var dueDate = getDueDate(5, weeks);
                         self.showConfirm(dueDate);
                     });
-                    
-                    // self.data = {};
-                    // self.parcels = [];
-                    // view.graphics.removeAll();
-                    // polys.removeAll();
-                    // highlights.removeAll();
-                    // $window.scrollTo(0, 0);
                 });
             }
         });
@@ -202,10 +184,6 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
                     self.data.planning5 = result.features[0].attributes.HEIGHT;
                   }
                 }
-                // var buildingType = $filter('filter')(buildingTypes, {zone: result.features[0].attributes.ZONE_TYPE});
-                // if (buildingType.length > 0) {
-                //     parcel.planning7 = buildingType[0].allowed;
-                // }
                 parcel.forestry2 = 1;
                 if (result.features[0].attributes.ZONE_TYPE === "R-1" || result.features[0].attributes.ZONE_TYPE === "R-2") {
                     parcel.forestry2 = 0;
@@ -256,8 +234,6 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
             query.spatialRelationship = 'intersects';
             queryTask.execute(query).then(function (result) {
                 if (result.features.length > 0) {
-                    //self.data.owner = result.features[0].attributes.OWNER;
-                    //self.data.pin = result.features[0].attributes.PIN_NUM;
                     if (result.features[0].attributes.DEED_ACRES) {
                         if (result.features[0].attributes.DEED_ACRES >= 2) {
                             self.data.forestry1 = 0;
@@ -306,7 +282,6 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
                 center: [address.geometry.x, address.geometry.y],
                 zoom: 17
             });
-            //self.data.address = self.selectedAddress.attributes.ADDRESS;
             self.addAddressToMap(address);
         }
     };
@@ -440,18 +415,7 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
         self.data.forestry1 = 1;
         self.data.forestry2 = 1;
         self.data.forestry5 = 1;
-        //self.data.planning7 = [];
         self.parcels.forEach(function (parcel) {
-            // if (self.data.planning7.length === 0) {
-            //     self.data.planning7 = parcel.planning7;
-            // } else {
-            //     parcel.planning7.forEach(function (type) {
-            //         if (self.data.planning7.indexOf(type) === -1) {
-            //             self.data.planning7.push(type);
-            //         }
-            //     });
-            // }
-
             if (self.data.pins.indexOf(parcel.pin) === -1) {
                 self.data.pins.push(parcel.pin);
             }
