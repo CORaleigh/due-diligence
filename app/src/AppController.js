@@ -12,27 +12,7 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
     var map = null,
         view = null,
         polys = null,
-        highlights = null,
-        buildingTypes = [
-            {zone: 'R-1', allowed: ['Detached House']},
-            {zone: 'R-2', allowed: ['Detached House', 'Attached House *', 'Civic Building', 'Open Lot']},
-            {zone: 'R-4', allowed: ['Detached House', 'Attached House *', 'Townhouse *', 'Civic Building', 'Open Lot']},
-            {zone: 'R-6', allowed: ['Detached House', 'Attached House', 'Townhouse *', 'Apartment *', 'Civic Building', 'Open Lot']},
-            {zone: 'R-10', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'Civic Building', 'Open Lot']},
-            {zone: 'RX-', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'Civic Building', 'Open Lot']},
-            {zone: 'OP-', allowed: ['General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
-            {zone: 'OX-', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
-            {zone: 'NX-', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
-            {zone: 'CX-', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
-            {zone: 'DX-', allowed: ['Detached House', 'Attached House', 'Townhouse', 'Apartment', 'General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
-            {zone: 'IX-', allowed: ['General Building', 'Mixed Use Building', 'Civic Building', 'Open Lot']},
-            {zone: 'CM', allowed: ['Open Lot']},
-            {zone: 'AP', allowed: ['Detached House', 'General Building', 'Open Lot']},
-            {zone: 'IH', allowed: ['General Building', 'Open Lot']},
-            {zone: 'MH', allowed: ['See Article 4.5. Manufactured Housing (MH)']},
-            {zone: 'CMP', allowed: ['Allowed building types determined on master plan (see Article 4.6. Campus (CMP))']},
-            {zone: 'PD', allowed: ['Allowed building types determined on master plan (see Article 4.7. Planned Development (PD)']}
-        ];
+        highlights = null;
 
     $scope.hideConfirm = function () {
         $mdDialog.hide();
