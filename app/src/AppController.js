@@ -4,8 +4,9 @@
  * @param $mdSidenav
  * @constructor
  */
-function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $filter, $window) {
+function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $mdDialog, $filter, $window, moment) {
     'use strict';
+    debugger;
     var self = this;
     self.parcels = [];
     var map = null,
@@ -32,9 +33,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             {zone: 'CMP', allowed: ['Allowed building types determined on master plan (see Article 4.6. Campus (CMP))']},
             {zone: 'PD', allowed: ['Allowed building types determined on master plan (see Article 4.7. Planned Development (PD)']}
         ];
-    $scope.hideSplash = function () {
-        $mdDialog.hide();
-    };
+
     $scope.hideConfirm = function () {
         $mdDialog.hide();
         $window.location.reload();
@@ -42,25 +41,33 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
 
     self.showSplash = function (ev) {
         $mdDialog.show({
-            controller: AppController,
+            controller: 'DialogController',
             templateUrl: 'templates/splash.html',
             parent: angular.element(document.body),
             targetEvent: ev,
             clickOutsideToClose: false
         });
     };
-    self.showConfirm = function (ev) {
+    self.showConfirm = function (dueDate) {
         $mdDialog.show({
-            controller: AppController,
             templateUrl: 'templates/confirm.html',
             parent: angular.element(document.body),
-            targetEvent: ev,
-            clickOutsideToClose: false
+            clickOutsideToClose: false,
+            locals: {
+                dueDate: dueDate
+            },
+            controller: function ConfirmController($scope, $mdDialog, $window, dueDate) {
+                $scope.dueDate = dueDate;
+                $scope.hideConfirm = function () {
+                    $mdDialog.hide();
+                    $window.location.reload();
+                };                
+            }
         });
     };
     self.showOutside = function (ev) {
         $mdDialog.show({
-            controller: AppController,
+            controller: 'DialogController',
             templateUrl: 'templates/outside.html',
             parent: angular.element(document.body),
             targetEvent: ev,
@@ -69,7 +76,7 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
     };
     self.showNonContinguous = function (ev) {
       $mdDialog.show({
-          controller: AppController,
+          controller: 'DialogController',
           templateUrl: 'templates/contiguous.html',
           parent: angular.element(document.body),
           targetEvent: ev,
@@ -77,6 +84,18 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
       });
     };
     self.data = {pins: [], address: [], planning1: [], planning2: 'N/A', planning3: [], planning4: [], forestry2: 1, forestry5: 1};
+
+ function getDueDate (dayOfWeek, weeks) {
+    // if we haven't yet passed the day of the week that I need:
+ //   if (moment().isoWeekday() <= dayOfWeek) { 
+    // then just give me this week's instance of that day
+ //   return moment().isoWeekday(dayOfWeek);
+ //   } else {
+    // otherwise, give me next week's instance of that day
+    return moment().add(weeks, 'weeks').isoWeekday(dayOfWeek).format('dddd, MMMM Do YYYY');
+ //   }    
+}   
+    
     self.submitForm = function () {
         // self.selectedAddress.geometry.spatialReference = {
         //     wkid: 4326
@@ -133,7 +152,13 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }).then(function () {
-                    self.showConfirm();
+                    $http.get("https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence_Areas/FeatureServer/0/query?where=Status=0&returnGeometry=false&returnCountOnly=true&f=json")
+                    .then(function (result) {
+                        var weeks = Math.ceil(result.data.count/5);
+                        var dueDate = getDueDate(5, weeks);
+                        self.showConfirm(dueDate);
+                    });
+                    
                     // self.data = {};
                     // self.parcels = [];
                     // view.graphics.removeAll();
@@ -495,5 +520,6 @@ function AppController($http, $scope, $httpParamSerializerJQLike, $mdDialog, $fi
             }
         });
     };
+
 }
-export default ['$http', '$scope', '$httpParamSerializerJQLike', '$mdDialog', '$filter', '$window', AppController];
+export default ['$http', '$scope', '$rootScope', '$httpParamSerializerJQLike', '$mdDialog', '$filter', '$window', 'moment', AppController];

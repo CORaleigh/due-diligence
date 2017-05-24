@@ -6,9 +6,10 @@ import 'angular-aria';
 import 'angular-material';
 import 'angular-ui-router';
 import AppController from 'src/AppController';
+import DialogController from 'src/DialogController';
+import angularMoment from 'angular-moment';
 
-
-export default angular.module( 'starter-app', [ 'ngMaterial', 'ngAnimate', 'ui.router'] )
+export default angular.module( 'starter-app', [ 'ngMaterial', 'ngAnimate', 'ui.router', 'angularMoment'] )
   .config(($mdIconProvider, $mdThemingProvider, $httpProvider, $stateProvider, $urlRouterProvider) => {
     // Register the user `avatar` icons
     $mdIconProvider
@@ -40,5 +41,6 @@ export default angular.module( 'starter-app', [ 'ngMaterial', 'ngAnimate', 'ui.r
       });
 
   })
-  .controller('AppController', AppController);
+  .controller('AppController', AppController)
+  .controller('DialogController', DialogController);
 
