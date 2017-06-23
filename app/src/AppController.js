@@ -91,7 +91,7 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
         self.data.forestryStatus = 0;
         self.data.emailSent = 1;
         $http({
-            url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence/FeatureServer/0/addFeatures",
+            url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence_Submission_Form/FeatureServer/0/addFeatures",
             method: 'POST',
             data: $httpParamSerializerJQLike({
                 f: 'json',
@@ -108,7 +108,7 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
             if (result.data.addResults.length > 0) {
                 var oid = result.data.addResults[0].objectId;
                 $http({
-                    url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence_Areas/FeatureServer/0/addFeatures",
+                    url: "https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence_Areas_Submission_Form/FeatureServer/0/addFeatures",
                     method: 'POST',
                     data: $httpParamSerializerJQLike({
                         f: 'json',
@@ -121,10 +121,11 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }).then(function () {
-                    $http.get("https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence_Areas/FeatureServer/0/query?where=Status=0&returnGeometry=false&returnCountOnly=true&f=json")
+                    $http.get("https://services.arcgis.com/v400IkDOw1ad7Yad/arcgis/rest/services/Due_Diligence_Areas_Submission_Form/FeatureServer/0/query?where=Status=0&returnGeometry=false&returnCountOnly=true&f=json")
                     .then(function (result) {
                         var weeks = Math.ceil(result.data.count/5);
-                        var dueDate = getDueDate(5, weeks);
+                        var dueDate = getDueDate(5, weeks + 2);
+                        debugger;
                         self.showConfirm(dueDate);
                     });
                 });
