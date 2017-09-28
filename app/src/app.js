@@ -29,7 +29,7 @@ export default angular.module( 'starter-app', [ 'ngMaterial', 'ngAnimate', 'ui.r
       .icon("close", "./assets/svg/ic_close_white_24px.svg", 24)
       .icon("delete", "./assets/svg/delete.svg", 24);
     $mdThemingProvider.theme('default')
-      .primaryPalette('blue')
+      .primaryPalette('green')
       .accentPalette('red');
     $httpProvider.defaults.headers.post =  { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'};
     $urlRouterProvider.otherwise('/form');
