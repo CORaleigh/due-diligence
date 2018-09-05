@@ -9,6 +9,7 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
     debugger;
     var self = this;
     self.parcels = [];
+    self.submitting = false;
     var map = null,
         view = null,
         polys = null,
@@ -70,6 +71,7 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
  }   
     
     self.submitForm = function () {
+        self.submitting = true;
         self.data.pins = self.data.pins.toString();
         self.data.address = self.data.address.toString();
         self.data.planning1 = self.data.planning1.toString();
@@ -125,7 +127,6 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
                     .then(function (result) {
                         var weeks = Math.ceil(result.data.count/5);
                         var dueDate = getDueDate(5, weeks + 1);
-                        debugger;
                         self.showConfirm(dueDate);
                     });
                 });
@@ -141,7 +142,7 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
     self.getZoning = function (queryTask, query, parcel) {
         query.outFields = ['ZONING', 'FRONTAGE', 'ZONE_TYPE', 'HEIGHT'];
         query.returnGeometry = false;
-        queryTask.url = "http://maps.raleighnc.gov/arcgis/rest/services/Planning/Zoning/MapServer/0";
+        queryTask.url = "https://maps.raleighnc.gov/arcgis/rest/services/Planning/Zoning/MapServer/0";
         queryTask.execute(query).then(function (result) {
             if (result.features.length > 0) {
                 parcel.planning1 = result.features[0].attributes.ZONING;
@@ -387,6 +388,7 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
         });
     };
     self.aggregateData = function (parcel) {
+        debugger;
         self.data.pins = [];
         self.data.address = [];
         self.data.planning1 = [];
@@ -397,6 +399,7 @@ function AppController($http, $scope, $rootScope, $httpParamSerializerJQLike, $m
         self.data.forestry2 = 1;
         self.data.forestry5 = 1;
         self.parcels.forEach(function (parcel) {
+            
             if (self.data.pins.indexOf(parcel.pin) === -1) {
                 self.data.pins.push(parcel.pin);
             }
